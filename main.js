@@ -177,7 +177,7 @@ addEventListener("pointermove", (e) => {
   drag.lastT = e.timeStamp;
 });
 
-addEventListener("pointerup", () => {
+addEventListener("pointerup", (e) => {
   release();
   if (!drag) return;
   const { v } = drag;
@@ -189,8 +189,27 @@ addEventListener("pointerup", () => {
   cursor.classList.remove("drag");
   // Cleared after the click that follows this pointerup has been swallowed.
   setTimeout(() => (dragged = false), 0);
+  calmHover(e);
 });
 addEventListener("pointercancel", release);
+
+// After a drag the card left under the pointer doesn't steal the highlight;
+// hover comes back once the pointer reaches another card or leaves the rail.
+function calmHover(e) {
+  const under = document.elementFromPoint(e.clientX, e.clientY)?.closest(".card");
+  rail.classList.add("calm");
+  const end = () => {
+    rail.classList.remove("calm");
+    rail.removeEventListener("pointerover", onOver);
+    rail.removeEventListener("pointerleave", end);
+  };
+  const onOver = (ev) => {
+    const card = ev.target.closest(".card");
+    if (card && card !== under) end();
+  };
+  rail.addEventListener("pointerover", onOver);
+  rail.addEventListener("pointerleave", end);
+}
 
 // A drag must not count as a click on the card under the pointer.
 rail.addEventListener(

@@ -175,10 +175,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .card.active::after { opacity: 0; }
 
 /* With a mouse, the hovered shot takes the highlight from the active one
-   until the pointer leaves it. */
+   until the pointer leaves it. Right after a drag (.calm) the active shot keeps
+   it, so letting go over another card doesn't flash. */
 @media (hover: hover) {
-  .track:has(.card:hover) .card.active:not(:hover)::after { opacity: .45; }
-  .track .card:hover::after { opacity: 0; }
+  .rail:not(.calm) .track:has(.card:hover) .card.active:not(:hover)::after { opacity: .45; }
+  .rail:not(.calm) .track .card:hover::after { opacity: 0; }
 }
 
 .fade {
