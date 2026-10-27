@@ -196,7 +196,7 @@ rail.addEventListener(
   { passive: true }
 );
 
-/* ---------- copy email: erase, "cooopied", retype ---------- */
+/* ---------- copy email: erase, "coopied", retype ---------- */
 
 const announce = document.getElementById("announce");
 
@@ -233,7 +233,7 @@ document.querySelectorAll("[data-copy]").forEach((link) => {
     }
     const tag = document.createElement("span");
     tag.className = "tag";
-    tag.textContent = "cooopied";
+    tag.textContent = "coopied";
     paintTag(tag);
     link.replaceChildren(tag);
     await wait(1200);
