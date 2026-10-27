@@ -304,8 +304,8 @@ body.lb-open .fade { opacity: 0; }
   align-items: center;
   opacity: 0;
 }
-/* Title and close fade in once the shot has fully grown (.65s), and vanish at once on close. */
-.lb.on .lb-head { opacity: 1; transition: opacity .25s var(--ease) .65s; }
+/* Title and close fade in as the shot finishes growing, and vanish at once on close. */
+.lb.on .lb-head { opacity: 1; transition: opacity .25s var(--ease) .5s; }
 .lb-close { color: var(--muted); transition: color .2s; }
 .lb-close:hover { color: var(--fg); }
 
