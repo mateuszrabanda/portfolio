@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mateusz rabanda</title>
+  <meta name="description" content="Senior product designer based in Kraków. Working remotely worldwide.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&family=Space+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <div class="page" id="page">
+    <div class="col">
+      <header class="top">
+        <a class="me" href="/">
+          <span class="avatar"><img src="assets/avatar.webp" alt="" width="16" height="16"></span>
+          mateusz rabanda
+        </a>
+        <nav class="links" aria-label="Social">
+          <a href="mailto:contact@rabanda.com" data-copy="contact@rabanda.com">email</a>
+          <a href="https://www.linkedin.com/in/rabanda/">linkedin</a>
+          <!-- TODO: uzupełnij swój profil na X -->
+          <a href="https://x.com/">x</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="block">
+          <h2 class="label">about</h2>
+          <p>senior product designer based in kraków. working remotely worldwide.</p>
+          <p class="muted">this website is temporary. working on something cool.</p>
+        </section>
+
+        <section class="block" aria-labelledby="work-label">
+          <div class="row">
+            <h2 class="label" id="work-label">work</h2>
+            <div class="arrows">
+              <button class="arrow" id="prev" aria-label="Previous project"><img src="assets/arrow-left.svg" alt="" width="16" height="16"></button>
+              <button class="arrow" id="next" aria-label="Next project"><img src="assets/arrow-right.svg" alt="" width="16" height="16"></button>
+            </div>
+          </div>
+
+          <!-- Każda karta: --w (szerokość), data-title (nagłówek w lightboxie). Karta bez <img> zostaje szarym placeholderem.
+               Przykład karty ze shotem:
+               <li>
+                 <button class="card" style="--w: 333" data-title="numa - key result details">
+                   <img src="assets/work/numa-key-result.webp" alt="Numa, key result details screen" draggable="false">
+                 </button>
+               </li> -->
+          <div class="rail-wrap">
+            <div class="rail" id="rail">
+              <ul class="track">
+                <!-- Placeholdery do podmiany na shoty projektów. -->
+                <li><button class="card" style="--w: 333" data-title="" tabindex="-1"></button></li>
+                <li><button class="card" style="--w: 160" data-title="" tabindex="-1"></button></li>
+                <li><button class="card" style="--w: 300" data-title="" tabindex="-1"></button></li>
+                <li><button class="card" style="--w: 333" data-title="" tabindex="-1"></button></li>
+                <li><button class="card" style="--w: 160" data-title="" tabindex="-1"></button></li>
+                <li><button class="card" style="--w: 300" data-title="" tabindex="-1"></button></li>
+                <li><button class="card" style="--w: 333" data-title="" tabindex="-1"></button></li>
+                <li><button class="card" style="--w: 160" data-title="" tabindex="-1"></button></li>
+                <li><button class="card" style="--w: 300" data-title="" tabindex="-1"></button></li>
+                <li><button class="card" style="--w: 333" data-title="" tabindex="-1"></button></li>
+              </ul>
+            </div>
+            <div class="fade" id="fade" aria-hidden="true"></div>
+          </div>
+        </section>
+
+        <section class="block">
+          <div class="xp xp-head label">
+            <h2>experience</h2>
+            <span>client type</span>
+            <span>time</span>
+          </div>
+          <ul class="xp-list">
+            <li class="xp"><span>freelance</span><span class="muted">everything</span><span class="muted">always</span></li>
+            <li class="xp"><span>microdose</span><span class="muted">startups</span><span class="muted">now</span></li>
+            <li class="xp"><span>semiflat</span><span class="muted">startups</span><span class="muted">1 yr</span></li>
+            <li class="xp"><span>vatix</span><span class="muted">product, sole designer</span><span class="muted">6 mo</span></li>
+            <li class="xp"><span>numi</span><span class="muted">y combinator startups</span><span class="muted">1 yr</span></li>
+            <li class="xp"><span>widelab</span><span class="muted">enterprise + startups</span><span class="muted">2 yrs</span></li>
+            <li class="xp"><span>listonic</span><span class="muted">product, intern</span><span class="muted">3 mo</span></li>
+          </ul>
+        </section>
+
+        <section class="block">
+          <h2 class="label">contact</h2>
+          <p class="contact">
+            <span>open to new projects. say hi →</span>
+            <a class="accent" href="mailto:contact@rabanda.com">contact@rabanda.com</a>
+          </p>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <p class="sr-only" id="announce" aria-live="polite"></p>
+
+  <div class="tag cursor" id="cursor" aria-hidden="true">expaaaand</div>
+
+  <div class="lb" id="lb" role="dialog" aria-modal="true" aria-labelledby="lb-title" hidden>
+    <div class="lb-inner">
+      <div class="lb-head">
+        <span id="lb-title"></span>
+        <button class="lb-close" id="lb-close">close</button>
+      </div>
+      <img class="lb-img" id="lb-img" alt="">
+    </div>
+  </div>
+</body>
+</html>
