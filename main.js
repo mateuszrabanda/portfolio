@@ -31,6 +31,10 @@ cards.forEach((card) => {
   const markEmpty = () => {
     card.classList.add("empty");
     img?.remove();
+    const label = document.createElement("span");
+    label.className = "soon";
+    label.textContent = "coming soon";
+    card.append(label);
   };
   if (!img) return markEmpty();
   if (img.complete && img.naturalWidth === 0) markEmpty();
@@ -292,12 +296,12 @@ addEventListener("pointermove", (e) => {
   ty = e.clientY;
   if (dragged) return;
   if (openCard) {
-    if (e.target === lbImg || e.target === lbClose) hideCursor();
+    if (e.target === view || e.target === lbClose) hideCursor();
     else showCursor("close");
     return;
   }
   const card = e.target.closest?.(".card");
-  if (card && !card.classList.contains("empty")) showCursor("expaaaand");
+  if (card) showCursor("expaaaand");
   else hideCursor();
 });
 
@@ -308,20 +312,28 @@ document.addEventListener("pointerleave", hideCursor);
 const page = document.getElementById("page");
 const lb = document.getElementById("lb");
 const lbImg = document.getElementById("lb-img");
+const lbPh = document.getElementById("lb-ph");
 const lbTitle = document.getElementById("lb-title");
 const lbClose = document.getElementById("lb-close");
 let openCard = null;
 let closing = false;
+// What the lightbox shows: the full image, or a 4:3 placeholder for cards without one.
+let view = lbImg;
 
-// Transform + clip that make the full lightbox image look exactly like the
+function naturalSize(card) {
+  const thumb = card.querySelector("img");
+  return thumb ? [thumb.naturalWidth, thumb.naturalHeight] : [4, 3];
+}
+
+// Transform + clip that make the full lightbox view look exactly like the
 // cropped thumbnail in the card (object-fit: cover, centred).
 function cardPose(card) {
-  const thumb = card.querySelector("img");
+  const [nw, nh] = naturalSize(card);
   const C = card.getBoundingClientRect();
-  const F = lbImg.getBoundingClientRect();
-  const s = Math.max(C.width / thumb.naturalWidth, C.height / thumb.naturalHeight);
-  const regionW = (C.width / s / thumb.naturalWidth) * F.width;
-  const regionH = (C.height / s / thumb.naturalHeight) * F.height;
+  const F = view.getBoundingClientRect();
+  const s = Math.max(C.width / nw, C.height / nh);
+  const regionW = (C.width / s / nw) * F.width;
+  const regionH = (C.height / s / nh) * F.height;
   const offX = (F.width - regionW) / 2;
   const offY = (F.height - regionH) / 2;
   const k = C.width / regionW;
@@ -332,18 +344,23 @@ function cardPose(card) {
 }
 
 function setPose(pose, animate) {
-  lbImg.style.transition = animate ? "transform .65s var(--ease), clip-path .65s var(--ease)" : "none";
-  lbImg.style.transform = pose ? pose.transform : "none";
-  lbImg.style.clipPath = pose ? pose.clipPath : "inset(0px 0px 0px 0px)";
+  view.style.transition = animate ? "transform .65s var(--ease), clip-path .65s var(--ease)" : "none";
+  view.style.transform = pose ? pose.transform : "none";
+  view.style.clipPath = pose ? pose.clipPath : "inset(0px 0px 0px 0px)";
 }
 
 function openLightbox(card) {
-  if (openCard || card.classList.contains("empty")) return;
+  if (openCard) return;
   const thumb = card.querySelector("img");
   openCard = card;
-  lbImg.src = thumb.currentSrc || thumb.src;
-  lbImg.alt = thumb.alt;
-  lbTitle.textContent = card.dataset.title || "";
+  view = thumb ? lbImg : lbPh;
+  lbImg.hidden = !thumb;
+  lbPh.hidden = !!thumb;
+  if (thumb) {
+    lbImg.src = thumb.currentSrc || thumb.src;
+    lbImg.alt = thumb.alt;
+  }
+  lbTitle.textContent = card.dataset.title || "coming soon";
 
   const opened = cards.indexOf(card);
   cards.forEach((c, i) => c.style.setProperty("--d", `${Math.abs(i - opened) * 0.05}s`));
@@ -357,14 +374,14 @@ function openLightbox(card) {
   const run = () => {
     if (!reduced.matches) {
       setPose(cardPose(card), false);
-      lbImg.getBoundingClientRect();
+      view.getBoundingClientRect();
     }
     card.style.visibility = "hidden";
     lb.classList.add("on");
     setPose(null, !reduced.matches);
     lbClose.focus({ preventScroll: true });
   };
-  if (lbImg.complete && lbImg.naturalWidth) run();
+  if (!thumb || (lbImg.complete && lbImg.naturalWidth)) run();
   else lbImg.addEventListener("load", run, { once: true });
 }
 
@@ -390,7 +407,7 @@ function closeLightbox() {
 
 cards.forEach((card) => card.addEventListener("click", () => openLightbox(card)));
 lb.addEventListener("click", (e) => {
-  if (e.target !== lbImg) closeLightbox();
+  if (e.target !== view) closeLightbox();
 });
 
 addEventListener("keydown", (e) => {

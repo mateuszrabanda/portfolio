@@ -42,7 +42,7 @@
             </div>
           </div>
 
-          <!-- Każda karta: --w (szerokość), data-title (nagłówek w lightboxie). Karta bez <img> zostaje szarym placeholderem.
+          <!-- Każda karta: --w (szerokość), data-title (nagłówek w lightboxie). Karta bez <img> zostaje szarym placeholderem z napisem „coming soon”.
                Przykład karty ze shotem:
                <li>
                  <button class="card" style="--w: 333" data-title="numa - key result details">
@@ -53,16 +53,16 @@
             <div class="rail" id="rail">
               <ul class="track">
                 <!-- Placeholdery do podmiany na shoty projektów. -->
-                <li><button class="card" style="--w: 333" data-title="" tabindex="-1"></button></li>
-                <li><button class="card" style="--w: 160" data-title="" tabindex="-1"></button></li>
-                <li><button class="card" style="--w: 300" data-title="" tabindex="-1"></button></li>
-                <li><button class="card" style="--w: 333" data-title="" tabindex="-1"></button></li>
-                <li><button class="card" style="--w: 160" data-title="" tabindex="-1"></button></li>
-                <li><button class="card" style="--w: 300" data-title="" tabindex="-1"></button></li>
-                <li><button class="card" style="--w: 333" data-title="" tabindex="-1"></button></li>
-                <li><button class="card" style="--w: 160" data-title="" tabindex="-1"></button></li>
-                <li><button class="card" style="--w: 300" data-title="" tabindex="-1"></button></li>
-                <li><button class="card" style="--w: 333" data-title="" tabindex="-1"></button></li>
+                <li><button class="card" style="--w: 333" data-title=""></button></li>
+                <li><button class="card" style="--w: 160" data-title=""></button></li>
+                <li><button class="card" style="--w: 300" data-title=""></button></li>
+                <li><button class="card" style="--w: 333" data-title=""></button></li>
+                <li><button class="card" style="--w: 160" data-title=""></button></li>
+                <li><button class="card" style="--w: 300" data-title=""></button></li>
+                <li><button class="card" style="--w: 333" data-title=""></button></li>
+                <li><button class="card" style="--w: 160" data-title=""></button></li>
+                <li><button class="card" style="--w: 300" data-title=""></button></li>
+                <li><button class="card" style="--w: 333" data-title=""></button></li>
               </ul>
             </div>
             <div class="fade" id="fade" aria-hidden="true"></div>
@@ -108,6 +108,7 @@
         <button class="lb-close" id="lb-close">close</button>
       </div>
       <img class="lb-img" id="lb-img" alt="">
+      <div class="lb-ph" id="lb-ph" hidden>coming soon</div>
     </div>
   </div>
 </body>

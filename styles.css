@@ -3,6 +3,7 @@
   --fg: #fff;
   --muted: #8c8c8c;
   --placeholder: #d9d9d9;
+  --on-placeholder: #5c5c5c;
   --accent: #fe803d;
   --lime: #befa0a;
   --col: 500px;
@@ -146,7 +147,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transition: transform .8s var(--ease);
 }
 .card:hover img { transform: scale(1.02); }
-.card.empty { cursor: default; }
+.card .soon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--on-placeholder);
+  pointer-events: none;
+}
 
 /* Every shot except the active one sits under a dark veil. */
 .card::after {
@@ -159,7 +167,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   transition: opacity .5s var(--ease);
 }
 .card.active::after { opacity: 0; }
-.card:not(.empty):hover::after { opacity: .2; }
+.card:hover::after { opacity: .2; }
 
 .fade {
   position: absolute;
@@ -297,6 +305,18 @@ body.lb-open .fade { opacity: 0; }
 .lb.on .lb-head { opacity: 1; transition-delay: .25s; }
 .lb-close { color: var(--muted); transition: color .2s; }
 .lb-close:hover { color: var(--fg); }
+
+.lb-ph {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--placeholder);
+  color: var(--on-placeholder);
+  transform-origin: 0 0;
+  will-change: transform, clip-path;
+}
+.lb-ph[hidden], .lb-img[hidden] { display: none; }
 
 .lb-img {
   display: block;
