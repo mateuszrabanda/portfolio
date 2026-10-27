@@ -320,9 +320,10 @@ let closing = false;
 // What the lightbox shows: the full image, or a 4:3 placeholder for cards without one.
 let view = lbImg;
 
+// A shot's own proportions; a placeholder takes the proportions of its card.
 function naturalSize(card) {
   const thumb = card.querySelector("img");
-  return thumb ? [thumb.naturalWidth, thumb.naturalHeight] : [4, 3];
+  return thumb ? [thumb.naturalWidth, thumb.naturalHeight] : [card.offsetWidth, card.offsetHeight];
 }
 
 // Transform + clip that make the full lightbox view look exactly like the
@@ -373,6 +374,8 @@ function openLightbox(card) {
     lbImg.alt = thumb.alt;
   }
   lbTitle.textContent = card.dataset.title || "coming soon";
+  const [nw, nh] = naturalSize(card);
+  lb.style.setProperty("--ar", nw / nh);
 
   const opened = cards.indexOf(card);
   cards.forEach((c, i) => c.style.setProperty("--d", `${Math.abs(i - opened) * 0.05}s`));
