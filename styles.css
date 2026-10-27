@@ -300,9 +300,9 @@ body.lb-open .fade { opacity: 0; }
   justify-content: space-between;
   align-items: center;
   opacity: 0;
-  transition: opacity .3s var(--ease);
 }
-.lb.on .lb-head { opacity: 1; transition-delay: .25s; }
+/* Title and close show up right away on open and vanish at once on close. */
+.lb.on .lb-head { opacity: 1; transition: opacity .12s linear; }
 .lb-close { color: var(--muted); transition: color .2s; }
 .lb-close:hover { color: var(--fg); }
 

@@ -331,6 +331,18 @@ function cardPose(card) {
   const [nw, nh] = naturalSize(card);
   const C = card.getBoundingClientRect();
   const F = view.getBoundingClientRect();
+  // The placeholder only moves and opens from the centre, never scales,
+  // so its "coming soon" label keeps the same size as on the card.
+  if (view === lbPh) {
+    const dx = C.left + C.width / 2 - (F.left + F.width / 2);
+    const dy = C.top + C.height / 2 - (F.top + F.height / 2);
+    const insetX = Math.max(0, (F.width - C.width) / 2);
+    const insetY = Math.max(0, (F.height - C.height) / 2);
+    return {
+      transform: `translate(${dx}px, ${dy}px)`,
+      clipPath: `inset(${insetY}px ${insetX}px ${insetY}px ${insetX}px)`,
+    };
+  }
   const s = Math.max(C.width / nw, C.height / nh);
   const regionW = (C.width / s / nw) * F.width;
   const regionH = (C.height / s / nh) * F.height;
