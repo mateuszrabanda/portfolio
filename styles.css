@@ -274,15 +274,16 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity .15s, visibility 0s .15s, background-color .4s linear;
+  transition: opacity .15s, visibility 0s .15s;
   will-change: transform;
 }
 .cursor.on {
   opacity: 1;
   visibility: visible;
-  /* Colour changes while dragging blend instead of flashing. */
-  transition: opacity .15s, background-color .4s linear;
+  transition: opacity .15s;
 }
+/* Only the drag tag blends between colours; every other tag stays a flat swatch. */
+.cursor.on.drag { transition: opacity .15s, background-color .4s linear; }
 
 /* lightbox */
 /* --sbw: scrollbar width, set in JS so hiding the scrollbar doesn't shift the page. */

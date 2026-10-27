@@ -166,6 +166,7 @@ addEventListener("pointermove", (e) => {
     rail.classList.add("dragging");
     release();
     showCursor(dragLabel());
+    cursor.classList.add("drag");
     paintT = performance.now();
   }
   if (!dragged) return;
@@ -185,6 +186,7 @@ addEventListener("pointerup", () => {
   if (!dragged) return;
   scrollToX(nearest(rail.scrollLeft + v * 320));
   hideCursor();
+  cursor.classList.remove("drag");
   // Cleared after the click that follows this pointerup has been swallowed.
   setTimeout(() => (dragged = false), 0);
 });
