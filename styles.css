@@ -206,7 +206,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   .xp { grid-template-columns: 84px 1fr 52px; }
 }
 .xp > :last-child { text-align: right; }
-.xp-list { display: flex; flex-direction: column; gap: 8px; }
+/* Rows touch (padding instead of gap) so moving between them never leaves
+   a dead zone that would flash the whole list back. */
+.xp-list { display: flex; flex-direction: column; margin-block: -4px; }
+.xp-list .xp { padding-block: 4px; }
 
 /* With a mouse, the hovered row turns fully white and the others fade back. */
 @media (hover: hover) {
@@ -271,13 +274,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  transition: opacity .15s, visibility 0s .15s;
+  transition: opacity .15s, visibility 0s .15s, background-color .4s linear;
   will-change: transform;
 }
 .cursor.on {
   opacity: 1;
   visibility: visible;
-  transition: opacity .15s;
+  /* Colour changes while dragging blend instead of flashing. */
+  transition: opacity .15s, background-color .4s linear;
 }
 
 /* lightbox */

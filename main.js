@@ -140,7 +140,7 @@ new ResizeObserver(sizeRail).observe(pageEl);
 let drag = null;
 let dragged = false;
 let pressedCard = null;
-let paintX = 0, paintY = 0;
+let paintT = 0;
 
 // Pressing a card shrinks it a touch; letting go (or starting a drag) releases it.
 function release() {
@@ -166,8 +166,7 @@ addEventListener("pointermove", (e) => {
     rail.classList.add("dragging");
     release();
     showCursor(dragLabel());
-    paintX = e.clientX;
-    paintY = e.clientY;
+    paintT = performance.now();
   }
   if (!dragged) return;
   rail.scrollLeft = drag.startScroll - dx;
@@ -325,11 +324,11 @@ addEventListener("pointermove", (e) => {
   tx = e.clientX;
   ty = e.clientY;
   if (dragged) {
-    // While dragging, the tag switches colour every ~30px of movement.
-    if (drag && Math.hypot(tx - paintX, ty - paintY) > 30) {
+    // While dragging, the tag drifts to a new colour at most every 0.4s
+    // (CSS blends the change), so it stays readable on fast drags.
+    if (drag && performance.now() - paintT > 400) {
       paintTag(cursor);
-      paintX = tx;
-      paintY = ty;
+      paintT = performance.now();
     }
     return;
   }
