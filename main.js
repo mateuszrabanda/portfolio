@@ -196,7 +196,7 @@ rail.addEventListener(
   { passive: true }
 );
 
-/* ---------- copy email: erase, "coopied", retype ---------- */
+/* ---------- copy email: erase, "copied", retype ---------- */
 
 const announce = document.getElementById("announce");
 
@@ -233,7 +233,7 @@ document.querySelectorAll("[data-copy]").forEach((link) => {
     }
     const tag = document.createElement("span");
     tag.className = "tag";
-    tag.textContent = "coopied";
+    tag.textContent = "copied";
     paintTag(tag);
     link.replaceChildren(tag);
     await wait(1200);
@@ -259,6 +259,11 @@ let cursorRaf = null;
 
 function placeCursor() {
   cursor.style.transform = `translate3d(${cx + 16}px, ${cy - 6}px, 0)`;
+}
+
+// "expand" with 2 to 5 a's, drawn anew each time the label appears.
+function expandLabel() {
+  return `exp${"a".repeat(2 + Math.floor(Math.random() * 4))}nd`;
 }
 
 function showCursor(text) {
@@ -301,7 +306,7 @@ addEventListener("pointermove", (e) => {
     return;
   }
   const card = e.target.closest?.(".card");
-  if (card) showCursor("expaaaand");
+  if (card) showCursor(cursorOn && cursor.textContent.startsWith("exp") ? cursor.textContent : expandLabel());
   else hideCursor();
 });
 

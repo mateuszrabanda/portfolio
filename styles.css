@@ -216,7 +216,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 .accent { color: var(--accent); text-decoration: none; }
 .accent:hover { text-decoration: underline; text-underline-position: from-font; }
 
-/* lime tag: cursor label and "coopied" */
+/* lime tag: cursor label and "copied" */
 .tag {
   display: inline-flex;
   align-items: center;
