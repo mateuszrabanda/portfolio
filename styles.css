@@ -5,6 +5,7 @@
   --placeholder: #d9d9d9;
   --on-placeholder: #5c5c5c;
   --accent: #fe803d;
+  --selection: #c2561d;
   --lime: #befa0a;
   --col: 500px;
   --card-h: 250px;
@@ -30,6 +31,9 @@ h2, p, ul { margin: 0; padding: 0; font: inherit; }
 ul { list-style: none; }
 a { color: inherit; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+/* Text selection in a darker shade of the accent orange. */
+::selection { background: var(--selection); color: #fff; }
+
 :focus-visible { outline: 1px solid var(--lime); outline-offset: 3px; }
 
 .sr-only {
@@ -266,8 +270,7 @@ body.lb-open { overflow: hidden; padding-right: var(--sbw, 0px); }
 /* Other cards fade out one by one, starting next to the opened one (--d set in JS). */
 body.lb-open .card:not(.is-open) {
   opacity: 0;
-  transform: scale(.97);
-  transition: opacity .5s var(--ease) var(--d, 0s), transform .7s var(--ease) var(--d, 0s);
+  transition: opacity .5s var(--ease) var(--d, 0s);
 }
 body.lb-open .fade { opacity: 0; }
 
@@ -301,8 +304,8 @@ body.lb-open .fade { opacity: 0; }
   align-items: center;
   opacity: 0;
 }
-/* Title and close show up right away on open and vanish at once on close. */
-.lb.on .lb-head { opacity: 1; transition: opacity .12s linear; }
+/* Title and close fade in once the shot has fully grown (.65s), and vanish at once on close. */
+.lb.on .lb-head { opacity: 1; transition: opacity .25s var(--ease) .65s; }
 .lb-close { color: var(--muted); transition: color .2s; }
 .lb-close:hover { color: var(--fg); }
 
