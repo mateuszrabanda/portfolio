@@ -141,8 +141,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   height: var(--card-h);
   overflow: hidden;
   background: var(--placeholder);
-  transition: opacity .45s var(--ease), transform .6s var(--ease);
+  transition: opacity .45s var(--ease), transform .25s var(--ease);
 }
+/* Brief press before the shot opens. */
+.card.pressed { transform: scale(.98); transition-duration: .45s, .12s; }
 .card img {
   display: block;
   width: 100%;
@@ -205,6 +207,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 }
 .xp > :last-child { text-align: right; }
 .xp-list { display: flex; flex-direction: column; gap: 8px; }
+
+/* With a mouse, the hovered row turns fully white and the others fade back. */
+@media (hover: hover) {
+  .xp-list .xp { transition: opacity .3s var(--ease); }
+  .xp-list .xp .muted { transition: color .3s var(--ease); }
+  .xp-list:has(.xp:hover) .xp:not(:hover) { opacity: .35; }
+  .xp-list .xp:hover .muted { color: var(--fg); }
+}
 
 /* contact */
 .contact {

@@ -139,9 +139,20 @@ new ResizeObserver(sizeRail).observe(pageEl);
 // Mouse drag. Touch uses native scrolling with CSS snap.
 let drag = null;
 let dragged = false;
+let pressedCard = null;
+let paintX = 0, paintY = 0;
+
+// Pressing a card shrinks it a touch; letting go (or starting a drag) releases it.
+function release() {
+  pressedCard?.classList.remove("pressed");
+  pressedCard = null;
+}
 
 rail.addEventListener("pointerdown", (e) => {
-  if (e.pointerType !== "mouse" || e.button !== 0) return;
+  if (e.button !== 0) return;
+  pressedCard = e.target.closest(".card");
+  pressedCard?.classList.add("pressed");
+  if (e.pointerType !== "mouse") return;
   stopAnim();
   drag = { startX: e.clientX, startScroll: rail.scrollLeft, lastX: e.clientX, lastT: e.timeStamp, v: 0 };
   dragged = false;
@@ -153,7 +164,10 @@ addEventListener("pointermove", (e) => {
   if (!dragged && Math.abs(dx) > 5) {
     dragged = true;
     rail.classList.add("dragging");
-    hideCursor();
+    release();
+    showCursor(dragLabel());
+    paintX = e.clientX;
+    paintY = e.clientY;
   }
   if (!dragged) return;
   rail.scrollLeft = drag.startScroll - dx;
@@ -164,12 +178,18 @@ addEventListener("pointermove", (e) => {
 });
 
 addEventListener("pointerup", () => {
+  release();
   if (!drag) return;
   const { v } = drag;
   drag = null;
   rail.classList.remove("dragging");
-  if (dragged) scrollToX(nearest(rail.scrollLeft + v * 320));
+  if (!dragged) return;
+  scrollToX(nearest(rail.scrollLeft + v * 320));
+  hideCursor();
+  // Cleared after the click that follows this pointerup has been swallowed.
+  setTimeout(() => (dragged = false), 0);
 });
+addEventListener("pointercancel", release);
 
 // A drag must not count as a click on the card under the pointer.
 rail.addEventListener(
@@ -266,6 +286,11 @@ function expandLabel() {
   return `exp${"a".repeat(2 + Math.floor(Math.random() * 4))}nd`;
 }
 
+// "draaag" while dragging the rail, also with 2 to 5 a's.
+function dragLabel() {
+  return `dr${"a".repeat(2 + Math.floor(Math.random() * 4))}g`;
+}
+
 function showCursor(text) {
   if (cursor.textContent !== text) cursor.textContent = text;
   if (!cursorOn) {
@@ -299,7 +324,15 @@ addEventListener("pointermove", (e) => {
   if (!finePointer.matches || e.pointerType !== "mouse") return;
   tx = e.clientX;
   ty = e.clientY;
-  if (dragged) return;
+  if (dragged) {
+    // While dragging, the tag switches colour every ~30px of movement.
+    if (drag && Math.hypot(tx - paintX, ty - paintY) > 30) {
+      paintTag(cursor);
+      paintX = tx;
+      paintY = ty;
+    }
+    return;
+  }
   if (openCard) {
     if (e.target === view || e.target === lbClose) hideCursor();
     else showCursor("close");
