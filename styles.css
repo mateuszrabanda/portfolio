@@ -435,7 +435,14 @@ html.tabbing .peek-ghost:focus-visible { outline: none; }
   text-decoration: none;
   transition: color .2s;
 }
-.back img { display: block; width: 16px; height: 16px; transition: opacity .2s; }
+/* The arrow is painted in the text colour, so it lights up together with "go back". */
+.back-icon {
+  width: 16px;
+  height: 16px;
+  background: currentColor;
+  -webkit-mask: url(assets/arrow-left.svg) center / contain no-repeat;
+  mask: url(assets/arrow-left.svg) center / contain no-repeat;
+}
 .back:hover { color: var(--fg); }
 
 .museum {
