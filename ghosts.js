@@ -76,12 +76,6 @@ ghosts.forEach((ghost) => {
     follow = true;
     show(ghost, e.clientX, e.clientY);
   });
-  ghost.addEventListener("pointermove", (e) => {
-    if (e.pointerType === "mouse" && active === ghost) pointAt(e.clientX, e.clientY);
-  });
-  ghost.addEventListener("pointerleave", (e) => {
-    if (e.pointerType === "mouse") hide();
-  });
 
   // Touch: a tap shows the details, another tap (or a tap anywhere else) hides them.
   ghost.addEventListener("click", (e) => {
@@ -97,6 +91,16 @@ ghosts.forEach((ghost) => {
   ghost.addEventListener("blur", () => {
     if (!follow) hide();
   });
+});
+
+// The whole row is one hover zone: in the gaps between ghosts the last one stays lit
+// (and its tag keeps following the pointer) until the next ghost takes over,
+// so moving across the row never flashes every ghost back on.
+museum.addEventListener("pointermove", (e) => {
+  if (e.pointerType === "mouse" && follow && active) pointAt(e.clientX, e.clientY);
+});
+museum.addEventListener("pointerleave", (e) => {
+  if (e.pointerType === "mouse") hide();
 });
 
 document.addEventListener("click", () => {
