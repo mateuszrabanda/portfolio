@@ -34,7 +34,10 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 /* Text selection in a darker shade of the accent orange. */
 ::selection { background: var(--selection); color: #fff; }
 
-:focus-visible { outline: 1px solid var(--lime); outline-offset: 3px; }
+/* Focus ring only while navigating with Tab (html.tabbing, set in JS),
+   not after arrow keys or programmatic focus. */
+:focus-visible { outline: none; }
+html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3px; }
 
 .sr-only {
   position: absolute;

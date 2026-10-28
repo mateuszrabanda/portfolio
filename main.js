@@ -7,6 +7,12 @@ const cards = [...rail.querySelectorAll(".card")];
 const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
 
+// Show focus rings only once someone navigates with Tab; any mouse or touch hides them again.
+addEventListener("keydown", (e) => {
+  if (e.key === "Tab") document.documentElement.classList.add("tabbing");
+});
+addEventListener("pointerdown", () => document.documentElement.classList.remove("tabbing"));
+
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
