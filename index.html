@@ -11,8 +11,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&family=Space+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=24">
-  <script src="main.js?v=24" defer></script>
+  <link rel="stylesheet" href="styles.css?v=25">
+  <script src="common.js?v=25" defer></script>
+  <script src="main.js?v=25" defer></script>
 </head>
 <body>
   <div class="page" id="page">
@@ -110,6 +111,18 @@
         </section>
       </main>
     </div>
+  </div>
+
+  <!-- Easter egg: a ghost peeking up from the very bottom of the page, leads to the ghost collection. -->
+  <div class="peek">
+    <a class="peek-ghost" href="ghosts.html" aria-label="secret ghost collection">
+      <span class="peek-glow" aria-hidden="true"></span>
+      <img class="ghost-img" src="assets/ghost.svg" alt="" draggable="false">
+      <svg class="peek-arc" viewBox="-60 -60 120 120" aria-hidden="true">
+        <path id="peek-arc" d="M -40.7 23.5 A 47 47 0 1 1 40.7 23.5" fill="none" />
+        <text><textPath href="#peek-arc" startOffset="50%" text-anchor="middle">secret ghost collection</textPath></text>
+      </svg>
+    </a>
   </div>
 
   <p class="sr-only" id="announce" aria-live="polite"></p>

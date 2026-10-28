@@ -18,7 +18,11 @@
 
 html { background: var(--bg); }
 
+/* Column layout so the ghost (.peek) sits at the bottom of short pages too. */
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
   margin: 0;
   background: var(--bg);
   color: var(--fg);
@@ -49,8 +53,11 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 }
 
 .page {
+  flex: 1 0 auto;
   padding: 40px 20px 80px;
 }
+/* The peeking ghost brings its own space below the content. */
+.page:has(+ .peek) { padding-bottom: 0; }
 
 .col {
   width: min(var(--col), 100%);
@@ -358,6 +365,111 @@ body.lb-open .fade { opacity: 0; }
   transform-origin: 0 0;
   will-change: transform, clip-path;
 }
+
+/* ghosts: silhouette or photo in a 53.5 x 108 box; the image is larger by
+   the soft shadow baked into it (offsets from the Figma export). */
+.ghost-img {
+  position: absolute;
+  inset: -8px -7.85px -8px -7.77px;
+  width: calc(100% + 15.62px);
+  height: calc(100% + 16px);
+  max-width: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Ghost peeking up from the bottom of the page: only its top 45px show, and
+   the clip ends the document there, so the page can't scroll any further. */
+.peek {
+  position: relative;
+  flex: none;
+  height: 114px;
+  overflow: clip;
+}
+.peek-ghost {
+  position: absolute;
+  left: 50%;
+  top: 69px;
+  width: 53.5px;
+  height: 108px;
+  translate: -50% 0;
+}
+.peek-glow {
+  position: absolute;
+  left: 18px;
+  top: 14px;
+  width: 16px;
+  height: 16px;
+  background: #999;
+  filter: blur(24px);
+  opacity: 0;
+  transition: opacity .45s var(--ease);
+}
+/* "secret ghost collection" curls around the ghost's head on hover. */
+.peek-arc {
+  position: absolute;
+  left: calc(50% - 60px);
+  top: -41px;
+  width: 120px;
+  height: 120px;
+  overflow: visible;
+  pointer-events: none;
+  fill: var(--muted);
+  font: 400 14px var(--mono);
+  opacity: 0;
+  rotate: -25deg;
+  transition: opacity .3s var(--ease), rotate .6s var(--ease);
+}
+.peek-ghost:hover .peek-arc,
+.peek-ghost:focus-visible .peek-arc { opacity: 1; rotate: 0deg; }
+.peek-ghost:hover .peek-glow,
+.peek-ghost:focus-visible .peek-glow { opacity: 1; }
+html.tabbing .peek-ghost:focus-visible { outline: none; }
+
+/* ghost page */
+.back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color .2s;
+}
+.back img { display: block; width: 16px; height: 16px; transition: opacity .2s; }
+.back:hover { color: var(--fg); }
+
+.museum {
+  display: flex;
+  justify-content: space-between;
+}
+.ghost {
+  position: relative;
+  width: 53.5px;
+  height: 108px;
+  transition: opacity .3s var(--ease);
+}
+/* The ghost under the pointer stays lit, the rest fade back. */
+.museum:has(.ghost.on) .ghost:not(.on) { opacity: .35; }
+
+/* Ghost details: a two-line tag above and to the right of the pointer. */
+.ghost-tag {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 30;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  height: auto;
+  --tag-bg: #ae8d58;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .15s, visibility 0s .15s;
+  will-change: transform;
+}
+.ghost-tag.on { opacity: 1; visibility: visible; transition: opacity .15s; }
+.ghost-tag > span { display: flex; gap: 32px; }
 
 @media (pointer: coarse) {
   .rail { scroll-snap-type: x mandatory; }
