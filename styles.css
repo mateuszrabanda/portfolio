@@ -321,8 +321,8 @@ body.lb-open .fade { opacity: 0; }
   flex-direction: column;
   gap: 8px;
   /* --ar (width / height) is set per shot in JS, so portrait shots stay portrait.
-     The view fits the 825 x 619 Figma frame and the window. */
-  width: min(825px, 100%, 619px * var(--ar, 4 / 3), (100svh - 100px) * var(--ar, 4 / 3));
+     The view fills most of the window height, up to 1200px wide. */
+  width: min(1200px, 100%, (100svh - 160px) * var(--ar, 4 / 3));
 }
 
 .lb-head {
