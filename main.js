@@ -497,35 +497,11 @@ lb.addEventListener("click", (e) => {
 
 // ← / → in the lightbox step through the shots. The rail scrolls along behind it,
 // so closing lands on the shot you were looking at.
-const lbInner = document.querySelector(".lb-inner");
-let stepping = false;
-let queued = 0;
-
-// Presses during a transition queue up, so three quick → move three shots.
+// Steps happen instantly: no fade, so quick presses don't pulse.
 function stepLightbox(dir) {
   if (!openCard || closing) return;
-  queued += dir;
-  if (!stepping) runSteps();
-}
-
-async function runSteps() {
-  stepping = true;
-  while (queued !== 0 && openCard && !closing) {
-    const dir = Math.sign(queued);
-    queued -= dir;
-    const next = cards[cards.indexOf(openCard) + dir];
-    if (!next) {
-      queued = 0;
-      break;
-    }
-    await swapTo(next);
-  }
-  stepping = false;
-}
-
-async function swapTo(next) {
-  const fade = reduced.matches ? 0 : 1;
-  await lbInner.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120 * fade, fill: "forwards" }).finished;
+  const next = cards[cards.indexOf(openCard) + dir];
+  if (!next) return;
 
   const prev = openCard;
   next.style.visibility = "hidden";
@@ -539,8 +515,6 @@ async function swapTo(next) {
   showInLightbox(next);
   stopAnim();
   rail.scrollLeft = Math.min(next.offsetLeft, maxScroll());
-
-  await lbInner.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180 * fade, fill: "forwards" }).finished;
 }
 
 addEventListener("keydown", (e) => {
