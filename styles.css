@@ -203,8 +203,11 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
   min-height: 16px;
 }
 
+/* Phones: columns sized in characters (longest entries: "experience",
+   "product, sole designer", "always") with a 1ch gap, at 13px so a row
+   still fits on a 360px-wide screen. */
 @media (max-width: 480px) {
-  .xp { grid-template-columns: 84px 1fr 52px; }
+  .xp { grid-template-columns: 11ch 1fr 6ch; column-gap: 1ch; font-size: 13px; }
 }
 .xp > :last-child { text-align: right; }
 /* Rows touch (padding instead of gap) so moving between them never leaves
