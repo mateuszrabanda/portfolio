@@ -420,10 +420,9 @@ function setPose(pose, animate) {
   view.style.clipPath = pose ? pose.clipPath : "inset(0px 0px 0px 0px)";
 }
 
-function openLightbox(card) {
-  if (openCard) return;
+// Fill the lightbox with a card's shot (or placeholder), title and proportions.
+function showInLightbox(card) {
   const thumb = card.querySelector("img");
-  openCard = card;
   view = thumb ? lbImg : lbPh;
   lbImg.hidden = !thumb;
   lbPh.hidden = !!thumb;
@@ -434,6 +433,13 @@ function openLightbox(card) {
   lbTitle.textContent = card.dataset.title || "coming soon";
   const [nw, nh] = naturalSize(card);
   lb.style.setProperty("--ar", nw / nh);
+}
+
+function openLightbox(card) {
+  if (openCard) return;
+  const thumb = card.querySelector("img");
+  openCard = card;
+  showInLightbox(card);
 
   const opened = cards.indexOf(card);
   cards.forEach((c, i) => c.style.setProperty("--d", `${Math.abs(i - opened) * 0.05}s`));
@@ -483,9 +489,59 @@ lb.addEventListener("click", (e) => {
   if (e.target !== view) closeLightbox();
 });
 
+// ← / → in the lightbox step through the shots. The rail scrolls along behind it,
+// so closing lands on the shot you were looking at.
+const lbInner = document.querySelector(".lb-inner");
+let stepping = false;
+let queued = 0;
+
+// Presses during a transition queue up, so three quick → move three shots.
+function stepLightbox(dir) {
+  if (!openCard || closing) return;
+  queued += dir;
+  if (!stepping) runSteps();
+}
+
+async function runSteps() {
+  stepping = true;
+  while (queued !== 0 && openCard && !closing) {
+    const dir = Math.sign(queued);
+    queued -= dir;
+    const next = cards[cards.indexOf(openCard) + dir];
+    if (!next) {
+      queued = 0;
+      break;
+    }
+    await swapTo(next);
+  }
+  stepping = false;
+}
+
+async function swapTo(next) {
+  const fade = reduced.matches ? 0 : 1;
+  await lbInner.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 120 * fade, fill: "forwards" }).finished;
+
+  const prev = openCard;
+  next.style.visibility = "hidden";
+  next.classList.add("is-open");
+  prev.classList.remove("is-open");
+  // Keep the previous card hidden until it has faded out behind the lightbox.
+  setTimeout(() => {
+    if (prev !== openCard) prev.style.visibility = "";
+  }, 600);
+  openCard = next;
+  showInLightbox(next);
+  stopAnim();
+  rail.scrollLeft = Math.min(next.offsetLeft, maxScroll());
+
+  await lbInner.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180 * fade, fill: "forwards" }).finished;
+}
+
 addEventListener("keydown", (e) => {
   if (!openCard) return;
   if (e.key === "Escape") closeLightbox();
+  if (e.key === "ArrowRight") stepLightbox(1);
+  if (e.key === "ArrowLeft") stepLightbox(-1);
   if (e.key === "Tab") {
     e.preventDefault();
     lbClose.focus();
