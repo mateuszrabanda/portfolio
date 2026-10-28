@@ -425,6 +425,17 @@ body.lb-open .fade { opacity: 0; }
 .peek-ghost:hover .peek-glow,
 .peek-ghost:focus-visible .peek-glow { opacity: 1; }
 html.tabbing .peek-ghost:focus-visible { outline: none; }
+/* Touch screens: the ghost is drawn by the fixed copy (.peek-tail, main.js) so it can
+   carry on under a floating browser bar; the clipped one stays as the tap target. */
+.peek-tailed .peek-ghost > .ghost-img { visibility: hidden; }
+.peek-tail {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 53.5px;
+  height: 108px;
+  pointer-events: none;
+}
 
 /* ghost page */
 .back {

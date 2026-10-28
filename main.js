@@ -451,3 +451,32 @@ addEventListener("keydown", (e) => {
     lbClose.focus();
   }
 });
+
+/* ---------- peek: the rest of the ghost under a see-through browser bar ---------- */
+
+// The page ends at the ghost's tip, but on phones whose browser bar floats over the page
+// (Safari on iOS 26) the screen goes on below that end. A fixed copy of the ghost tracks
+// the clipped one, so the rest of it shows through the bar instead of a hard cut;
+// where the screen ends at the page end, the copy just sits off screen.
+const peekGhost = document.querySelector(".peek-ghost");
+if (peekGhost && !finePointer.matches) {
+  const tail = document.createElement("div");
+  tail.className = "peek-tail";
+  tail.setAttribute("aria-hidden", "true");
+  tail.append(peekGhost.querySelector(".ghost-img").cloneNode());
+  document.body.append(tail);
+  document.documentElement.classList.add("peek-tailed");
+
+  // Scroll fires once per frame already; moving the copy right there keeps it in step.
+  const follow = () => {
+    const r = peekGhost.getBoundingClientRect();
+    tail.style.transform = `translate3d(${r.left}px, ${r.top}px, 0)`;
+    tail.hidden = r.top > innerHeight + 200;
+  };
+  addEventListener("scroll", follow, { passive: true });
+  addEventListener("resize", follow);
+  visualViewport?.addEventListener("resize", follow);
+  // Fonts and shots loading in push the ghost down after the first placement.
+  new ResizeObserver(follow).observe(document.body);
+  follow();
+}
