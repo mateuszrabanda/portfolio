@@ -23,12 +23,6 @@ cards.forEach((card) => {
   if (!img) return markEmpty();
   if (img.tagName === "IMG" && img.complete && img.naturalWidth === 0) markEmpty();
   else img.addEventListener("error", markEmpty);
-
-  // A video plays while hovered and pauses when the pointer leaves.
-  if (img.tagName === "VIDEO") {
-    card.addEventListener("pointerenter", () => img.play().catch(() => {}));
-    card.addEventListener("pointerleave", () => img.pause());
-  }
 });
 
 /* ---------- rail: smooth scroll, drag with momentum, snap ---------- */
@@ -371,13 +365,12 @@ function showInLightbox(card) {
     lbImg.src = thumb.currentSrc || thumb.src;
     lbImg.alt = thumb.alt;
   }
-  // The video carries on in the lightbox from where the card's copy was.
+  // A video stays still on its card and only plays, from the start, once zoomed in.
   if (clip) {
     const src = clip.currentSrc || clip.src;
     if (lbVideo.src !== src) lbVideo.src = src;
     lbVideo.setAttribute("aria-label", clip.getAttribute("aria-label") || "");
-    lbVideo.currentTime = clip.currentTime;
-    clip.pause();
+    lbVideo.currentTime = 0;
     lbVideo.play().catch(() => {});
   } else {
     lbVideo.pause();
