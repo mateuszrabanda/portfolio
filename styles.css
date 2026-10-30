@@ -165,6 +165,21 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 }
 .card:hover img,
 .card:hover video { transform: scale(1.02); }
+/* "motion" badge on video shots: grey chip 4px from the left and bottom edge. */
+.card .badge {
+  position: absolute;
+  left: 4px;
+  bottom: 4px;
+  display: inline-flex;
+  align-items: center;
+  height: 21px;
+  padding: 0 4px;
+  background: #ccc;
+  color: #000;
+  font: 400 14px/normal var(--tag);
+  pointer-events: none;
+}
+
 .card .soon {
   position: absolute;
   inset: 0;
