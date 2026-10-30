@@ -9,9 +9,9 @@ const nextBtn = document.getElementById("next");
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
 
-// Cards without an image (or with a missing file) stay as grey placeholders.
+// Cards without an image or video (or with a missing file) stay as grey placeholders.
 cards.forEach((card) => {
-  const img = card.querySelector("img");
+  const img = card.querySelector("img, video");
   const markEmpty = () => {
     card.classList.add("empty");
     img?.remove();
@@ -21,8 +21,14 @@ cards.forEach((card) => {
     card.append(label);
   };
   if (!img) return markEmpty();
-  if (img.complete && img.naturalWidth === 0) markEmpty();
+  if (img.tagName === "IMG" && img.complete && img.naturalWidth === 0) markEmpty();
   else img.addEventListener("error", markEmpty);
+
+  // A video plays while hovered and pauses when the pointer leaves.
+  if (img.tagName === "VIDEO") {
+    card.addEventListener("pointerenter", () => img.play().catch(() => {}));
+    card.addEventListener("pointerleave", () => img.pause());
+  }
 });
 
 /* ---------- rail: smooth scroll, drag with momentum, snap ---------- */
@@ -301,6 +307,7 @@ const page = document.getElementById("page");
 const lb = document.getElementById("lb");
 const lbImg = document.getElementById("lb-img");
 const lbPh = document.getElementById("lb-ph");
+const lbVideo = document.getElementById("lb-video");
 const lbTitle = document.getElementById("lb-title");
 const lbClose = document.getElementById("lb-close");
 let openCard = null;
@@ -310,8 +317,10 @@ let view = lbImg;
 
 // A shot's own proportions; a placeholder takes the proportions of its card.
 function naturalSize(card) {
-  const thumb = card.querySelector("img");
-  return thumb ? [thumb.naturalWidth, thumb.naturalHeight] : [card.offsetWidth, card.offsetHeight];
+  const thumb = card.querySelector("img, video");
+  if (!thumb) return [card.offsetWidth, card.offsetHeight];
+  if (thumb.tagName === "VIDEO") return [thumb.videoWidth || thumb.width, thumb.videoHeight || thumb.height];
+  return [thumb.naturalWidth, thumb.naturalHeight];
 }
 
 // Transform + clip that make the full lightbox view look exactly like the
@@ -353,12 +362,25 @@ function setPose(pose, animate) {
 // Fill the lightbox with a card's shot (or placeholder), title and proportions.
 function showInLightbox(card) {
   const thumb = card.querySelector("img");
-  view = thumb ? lbImg : lbPh;
-  lbImg.hidden = !thumb;
-  lbPh.hidden = !!thumb;
+  const clip = card.querySelector("video");
+  view = thumb ? lbImg : clip ? lbVideo : lbPh;
+  lbImg.hidden = view !== lbImg;
+  lbVideo.hidden = view !== lbVideo;
+  lbPh.hidden = view !== lbPh;
   if (thumb) {
     lbImg.src = thumb.currentSrc || thumb.src;
     lbImg.alt = thumb.alt;
+  }
+  // The video carries on in the lightbox from where the card's copy was.
+  if (clip) {
+    const src = clip.currentSrc || clip.src;
+    if (lbVideo.src !== src) lbVideo.src = src;
+    lbVideo.setAttribute("aria-label", clip.getAttribute("aria-label") || "");
+    lbVideo.currentTime = clip.currentTime;
+    clip.pause();
+    lbVideo.play().catch(() => {});
+  } else {
+    lbVideo.pause();
   }
   lbTitle.textContent = card.dataset.title || "coming soon";
   const [nw, nh] = naturalSize(card);
@@ -404,6 +426,7 @@ function closeLightbox() {
 
   setTimeout(() => {
     lb.hidden = true;
+    lbVideo.pause();
     setPose(null, false);
     card.style.visibility = "";
     card.classList.remove("is-open");

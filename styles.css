@@ -155,14 +155,16 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 }
 /* Brief press before the shot opens. */
 .card.pressed { transform: scale(.98); transition-duration: .45s, .12s; }
-.card img {
+.card img,
+.card video {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   transition: transform .8s var(--ease);
 }
-.card:hover img { transform: scale(1.02); }
+.card:hover img,
+.card:hover video { transform: scale(1.02); }
 .card .soon {
   position: absolute;
   inset: 0;
