@@ -7,8 +7,12 @@
   --accent: #fe803d;
   --selection: #c2561d;
   --lime: #befa0a;
-  --col: 500px;
-  --card-h: 250px;
+  /* Design px from the 1440 x 900 Figma frame. 1px up to ~1600 x 900, then grows
+     with the window (whichever of width or height is tighter), capped at 1.6x so
+     big and ultrawide screens stay readable without blowing the page up. */
+  --u: clamp(1px, min(100vw / 1600, 100vh / 900), 1.6px);
+  --col: calc(500 * var(--u));
+  --card-h: calc(250 * var(--u));
   --ease: cubic-bezier(.22, .8, .2, 1);
   --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --tag: "Space Mono", ui-monospace, monospace;
@@ -26,7 +30,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--fg);
-  font: 400 14px/normal var(--mono);
+  font: 400 calc(14 * var(--u))/normal var(--mono);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -54,7 +58,7 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 
 .page {
   flex: 1 0 auto;
-  padding: 40px 20px 80px;
+  padding: calc(40 * var(--u)) calc(20 * var(--u)) calc(80 * var(--u));
 }
 /* The peeking ghost brings its own space below the content. */
 .page:has(+ .peek) { padding-bottom: 0; }
@@ -67,10 +71,10 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 .col, main {
   display: flex;
   flex-direction: column;
-  gap: 32px;
+  gap: calc(32 * var(--u));
 }
 
-.block { display: flex; flex-direction: column; gap: 16px; }
+.block { display: flex; flex-direction: column; gap: calc(16 * var(--u)); }
 .label, .muted { color: var(--muted); }
 
 /* header */
@@ -83,14 +87,14 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 .me {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: calc(8 * var(--u));
   text-decoration: none;
 }
 
 .avatar {
   position: relative;
-  width: 16px;
-  height: 16px;
+  width: calc(16 * var(--u));
+  height: calc(16 * var(--u));
   border: 1px solid rgba(255, 255, 255, .1);
 }
 .avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -101,7 +105,7 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
   background: linear-gradient(135deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, .1) 100%);
 }
 
-.links { display: flex; gap: 16px; color: var(--muted); }
+.links { display: flex; gap: calc(16 * var(--u)); color: var(--muted); }
 .links a {
   text-underline-position: from-font;
   transition: color .2s;
@@ -115,9 +119,9 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
   align-items: center;
 }
 
-.arrows { display: flex; gap: 8px; }
+.arrows { display: flex; gap: calc(8 * var(--u)); }
 .arrow { display: block; transition: opacity .2s; }
-.arrow img { display: block; width: 16px; height: 16px; }
+.arrow img { display: block; width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
 .arrow:hover { opacity: .7; }
 .arrow:disabled { opacity: .3; cursor: default; }
 
@@ -140,14 +144,14 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 .track {
   position: relative;
   display: flex;
-  gap: 8px;
+  gap: calc(8 * var(--u));
   width: max-content;
 }
 
 .card {
   position: relative;
   display: block;
-  width: calc(var(--w) * 1px);
+  width: calc(var(--w) * var(--u));
   height: var(--card-h);
   overflow: hidden;
   background: var(--placeholder);
@@ -168,15 +172,15 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 /* "motion" badge on video shots: grey chip 4px from the left and bottom edge. */
 .card .badge {
   position: absolute;
-  left: 4px;
-  bottom: 4px;
+  left: calc(4 * var(--u));
+  bottom: calc(4 * var(--u));
   display: inline-flex;
   align-items: center;
-  height: 21px;
-  padding: 0 4px;
+  height: calc(21 * var(--u));
+  padding: 0 calc(4 * var(--u));
   background: #ccc;
   color: #000;
-  font: 400 14px/normal var(--tag);
+  font: 400 calc(14 * var(--u))/normal var(--tag);
   pointer-events: none;
 }
 
@@ -213,11 +217,11 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
   position: absolute;
   top: 0;
   right: 0;
-  width: 100px;
+  width: calc(100 * var(--u));
   height: var(--card-h);
   background: linear-gradient(to left, rgba(25, 25, 25, .6), rgba(25, 25, 25, 0));
-  backdrop-filter: blur(1px);
-  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(calc(1 * var(--u)));
+  -webkit-backdrop-filter: blur(calc(1 * var(--u)));
   pointer-events: none;
   transition: opacity .3s;
 }
@@ -226,8 +230,8 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 /* experience */
 .xp {
   display: grid;
-  grid-template-columns: 177.5px 1fr 55px;
-  min-height: 16px;
+  grid-template-columns: calc(177.5 * var(--u)) 1fr calc(55 * var(--u));
+  min-height: calc(16 * var(--u));
 }
 
 /* Phones: columns sized in characters (longest entries: "experience",
@@ -239,8 +243,8 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 .xp > :last-child { text-align: right; }
 /* Rows touch (padding instead of gap) so moving between them never leaves
    a dead zone that would flash the whole list back. */
-.xp-list { display: flex; flex-direction: column; margin-block: -4px; }
-.xp-list .xp { padding-block: 4px; }
+.xp-list { display: flex; flex-direction: column; margin-block: calc(-4 * var(--u)); }
+.xp-list .xp { padding-block: calc(4 * var(--u)); }
 
 /* With a mouse, the hovered row turns fully white and the others fade back. */
 @media (hover: hover) {
@@ -255,7 +259,7 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 8px 16px;
+  gap: calc(8 * var(--u)) calc(16 * var(--u));
 }
 .accent { color: var(--accent); text-decoration: none; }
 .accent:hover { text-decoration: underline; text-underline-position: from-font; }
@@ -264,13 +268,13 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 .tag {
   display: inline-flex;
   align-items: center;
-  height: 21px;
-  padding: 0 4px;
+  height: calc(21 * var(--u));
+  padding: 0 calc(4 * var(--u));
   background: var(--tag-bg, var(--lime));
   color: #000;
-  font: 400 14px/normal var(--tag);
+  font: 400 calc(14 * var(--u))/normal var(--tag);
   white-space: nowrap;
-  filter: drop-shadow(0 2px 2px rgba(10, 10, 12, .06)) drop-shadow(0 4px 3px rgba(10, 10, 12, .1));
+  filter: drop-shadow(0 calc(2 * var(--u)) calc(2 * var(--u)) rgba(10, 10, 12, .06)) drop-shadow(0 calc(4 * var(--u)) calc(3 * var(--u)) rgba(10, 10, 12, .1));
 }
 
 /* The copied tag floats over the link, so the header never reflows. */
@@ -332,24 +336,24 @@ body.lb-open .fade { opacity: 0; }
   z-index: 20;
   display: grid;
   place-items: center;
-  padding: 20px;
+  padding: calc(20 * var(--u));
   background: rgba(0, 0, 0, 0);
   transition: background .5s var(--ease), backdrop-filter .5s var(--ease);
 }
 .lb[hidden] { display: none; }
 .lb.on {
   background: rgba(0, 0, 0, .1);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(calc(2 * var(--u)));
+  -webkit-backdrop-filter: blur(calc(2 * var(--u)));
 }
 
 .lb-inner {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: calc(8 * var(--u));
   /* --ar (width / height) is set per shot in JS, so portrait shots stay portrait.
      The view fills most of the window height, up to 1200px wide. */
-  width: min(1200px, 100%, (100svh - 160px) * var(--ar, 4 / 3));
+  width: min(calc(1200 * var(--u)), 100%, (100svh - calc(160 * var(--u))) * var(--ar, 4 / 3));
 }
 
 .lb-head {
@@ -387,9 +391,9 @@ body.lb-open .fade { opacity: 0; }
    the soft shadow baked into it (offsets from the Figma export). */
 .ghost-img {
   position: absolute;
-  inset: -8px -7.85px -8px -7.77px;
-  width: calc(100% + 15.62px);
-  height: calc(100% + 16px);
+  inset: calc(-8 * var(--u)) calc(-7.85 * var(--u)) calc(-8 * var(--u)) calc(-7.77 * var(--u));
+  width: calc(100% + calc(15.62 * var(--u)));
+  height: calc(100% + calc(16 * var(--u)));
   max-width: none;
   user-select: none;
   -webkit-user-select: none;
@@ -400,39 +404,39 @@ body.lb-open .fade { opacity: 0; }
 .peek {
   position: relative;
   flex: none;
-  height: 114px;
+  height: calc(114 * var(--u));
   overflow: clip;
 }
 .peek-ghost {
   position: absolute;
   left: 50%;
-  top: 69px;
-  width: 53.5px;
-  height: 108px;
+  top: calc(69 * var(--u));
+  width: calc(53.5 * var(--u));
+  height: calc(108 * var(--u));
   translate: -50% 0;
 }
 .peek-glow {
   position: absolute;
-  left: 18px;
-  top: 14px;
-  width: 16px;
-  height: 16px;
+  left: calc(18 * var(--u));
+  top: calc(14 * var(--u));
+  width: calc(16 * var(--u));
+  height: calc(16 * var(--u));
   background: #999;
-  filter: blur(24px);
+  filter: blur(calc(24 * var(--u)));
   opacity: 0;
   transition: opacity .45s var(--ease);
 }
 /* "secret ghost collection" curls around the ghost's head on hover. */
 .peek-arc {
   position: absolute;
-  left: calc(50% - 60px);
-  top: -41px;
-  width: 120px;
-  height: 120px;
+  left: calc(50% - calc(60 * var(--u)));
+  top: calc(-41 * var(--u));
+  width: calc(120 * var(--u));
+  height: calc(120 * var(--u));
   overflow: visible;
   pointer-events: none;
   fill: var(--muted);
-  font: 400 14px var(--mono);
+  font: 400 calc(14 * var(--u)) var(--mono);
   opacity: 0;
   rotate: -25deg;
   transition: opacity .3s var(--ease), rotate .6s var(--ease);
@@ -449,8 +453,8 @@ html.tabbing .peek-ghost:focus-visible { outline: none; }
   position: fixed;
   left: 0;
   top: 0;
-  width: 53.5px;
-  height: 108px;
+  width: calc(53.5 * var(--u));
+  height: calc(108 * var(--u));
   pointer-events: none;
 }
 
@@ -458,15 +462,15 @@ html.tabbing .peek-ghost:focus-visible { outline: none; }
 .back {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: calc(8 * var(--u));
   color: var(--muted);
   text-decoration: none;
   transition: color .2s;
 }
 /* The arrow is painted in the text colour, so it lights up together with "go back". */
 .back-icon {
-  width: 16px;
-  height: 16px;
+  width: calc(16 * var(--u));
+  height: calc(16 * var(--u));
   background: currentColor;
   -webkit-mask: url(assets/arrow-left.svg) center / contain no-repeat;
   mask: url(assets/arrow-left.svg) center / contain no-repeat;
@@ -479,8 +483,8 @@ html.tabbing .peek-ghost:focus-visible { outline: none; }
 }
 .ghost {
   position: relative;
-  width: 53.5px;
-  height: 108px;
+  width: calc(53.5 * var(--u));
+  height: calc(108 * var(--u));
   transition: opacity .3s var(--ease);
 }
 /* The ghost under the pointer stays lit, the rest fade back. */
@@ -494,7 +498,7 @@ html.tabbing .peek-ghost:focus-visible { outline: none; }
   z-index: 30;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: calc(8 * var(--u));
   height: auto;
   --tag-bg: #ae8d58;
   pointer-events: none;
@@ -504,7 +508,7 @@ html.tabbing .peek-ghost:focus-visible { outline: none; }
   will-change: transform;
 }
 .ghost-tag.on { opacity: 1; visibility: visible; transition: opacity .15s; }
-.ghost-tag > span { display: flex; gap: 32px; }
+.ghost-tag > span { display: flex; gap: calc(32 * var(--u)); }
 
 @media (pointer: coarse) {
   .rail { scroll-snap-type: x mandatory; }

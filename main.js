@@ -117,7 +117,11 @@ function updateRail() {
 }
 rail.addEventListener("scroll", updateRail, { passive: true });
 rail.addEventListener("scrollend", updateRail);
-// Observing the page also catches the scrollbar appearing or disappearing.
+// Size the rail right away (the observer's first call isn't guaranteed before
+// the first paint), on window resizes, and whenever the page changes size, which
+// also catches the scrollbar appearing or disappearing.
+sizeRail();
+addEventListener("resize", sizeRail);
 new ResizeObserver(sizeRail).observe(pageEl);
 
 // Mouse drag. Touch uses native scrolling with CSS snap.
@@ -228,7 +232,9 @@ let cursorOn = false;
 let cursorRaf = null;
 
 function placeCursor() {
-  cursor.style.transform = `translate3d(${cx + 16}px, ${cy - 6}px, 0)`;
+  // Same scale as --u in the CSS, so the label keeps its distance on big screens.
+  const u = Math.min(1.6, Math.max(1, Math.min(innerWidth / 1600, innerHeight / 900)));
+  cursor.style.transform = `translate3d(${cx + 16 * u}px, ${cy - 6 * u}px, 0)`;
 }
 
 // "expand" with 2 to 5 a's, drawn anew each time the label appears.
