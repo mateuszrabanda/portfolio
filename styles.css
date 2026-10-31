@@ -118,6 +118,12 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 .links a:hover { color: var(--fg); }
 
 /* work */
+/* "work" on the left, the hint on the right edge of the grid. */
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
 /* Shots in a 2 x 2 grid as wide as the column, so every shot shows at once.
    One column on phones. */
 .grid {

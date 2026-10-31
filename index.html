@@ -11,9 +11,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&family=Space+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=42">
-  <script src="common.js?v=42" defer></script>
-  <script src="main.js?v=42" defer></script>
+  <link rel="stylesheet" href="styles.css?v=43">
+  <script src="common.js?v=43" defer></script>
+  <script src="main.js?v=43" defer></script>
 </head>
 <body>
   <div class="page" id="page">
@@ -37,7 +37,10 @@
         </section>
 
         <section class="block" aria-labelledby="work-label">
-          <h2 class="label" id="work-label">work (click to expand)</h2>
+          <div class="row label">
+            <h2 id="work-label">work</h2>
+            <span>click to expand</span>
+          </div>
 
           <!-- Każda karta: data-title (nagłówek w lightboxie). Karta bez <img> zostaje szarym placeholderem z napisem „coming soon”.
                Przykład karty ze shotem:
