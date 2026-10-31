@@ -131,10 +131,9 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 .arrow:hover { opacity: .7; }
 .arrow:disabled { opacity: .3; cursor: default; }
 
-/* The rail spans the whole page width (set in JS); this is the no-JS fallback. */
+/* The rail stays inside the column; the next shot peeks in at its right edge. */
 .rail-wrap {
   position: relative;
-  width: calc(100% + (100vw - 100%) / 2);
 }
 
 .rail {
@@ -219,19 +218,20 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
   .rail:not(.calm) .track .card:hover::after { opacity: 0; }
 }
 
-.fade {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: calc(100 * var(--u));
-  height: var(--card-h);
-  background: linear-gradient(to left, rgba(25, 25, 25, .6), rgba(25, 25, 25, 0));
-  backdrop-filter: blur(calc(1 * var(--u)));
-  -webkit-backdrop-filter: blur(calc(1 * var(--u)));
-  pointer-events: none;
-  transition: opacity .3s;
+/* The shot peeking past the column's edge fades out completely, so no cut edge
+   shows: on the right while there's more to come, on the left at the very end
+   (the last shot sits flush right and the one before it peeks in). */
+@property --fl { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --fr { syntax: "<length>"; inherits: false; initial-value: 0px; }
+.rail {
+  --edge: calc(140 * var(--u));
+  --fr: var(--edge);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fl), #000 calc(100% - var(--fr)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--fl), #000 calc(100% - var(--fr)), transparent);
+  transition: --fl .4s var(--ease), --fr .4s var(--ease);
 }
-.fade.off { opacity: 0; }
+.rail.at-end { --fr: 0px; }
+.rail.at-end.moved { --fl: var(--edge); }
 
 /* experience */
 .xp {
@@ -244,6 +244,8 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
    "product, sole designer", "always") with a 1ch gap, at 13px so a row
    still fits on a 360px-wide screen. */
 @media (max-width: 480px) {
+  .card { width: min(calc(var(--w) * var(--u)), 100vw - 96px); }
+  .rail { --edge: 64px; }
   .xp { grid-template-columns: 11ch 1fr 6ch; column-gap: 1ch; font-size: 13px; }
 }
 .xp > :last-child { text-align: right; }
@@ -334,7 +336,6 @@ body.lb-open .card:not(.is-open) {
   opacity: 0;
   transition: opacity .5s var(--ease) var(--d, 0s);
 }
-body.lb-open .fade { opacity: 0; }
 
 .lb {
   position: fixed;

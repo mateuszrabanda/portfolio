@@ -1,7 +1,6 @@
 const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
 
 const rail = document.getElementById("rail");
-const fade = document.getElementById("fade");
 const cards = [...rail.querySelectorAll(".card")];
 const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
@@ -76,23 +75,10 @@ prevBtn.addEventListener("click", () => {
   scrollToX([...stops()].reverse().find((s) => s < x - 4) ?? 0);
 });
 
-// The rail spans the whole page width, so shots slide out past the column on
-// both sides. Left padding keeps the first card aligned with the column; the
-// space after the track lets the rail stop with the last card's right edge
-// flush with the column's right edge.
-const railWrap = rail.parentElement;
-const track = rail.querySelector(".track");
+// The rail is as wide as the column, so the next shot peeks in at its right edge.
 const pageEl = document.getElementById("page");
-const colEl = document.querySelector(".col");
 
 function sizeRail() {
-  const page = pageEl.getBoundingClientRect();
-  const inset = colEl.getBoundingClientRect().left - page.left;
-  railWrap.style.marginLeft = `${-inset}px`;
-  railWrap.style.width = `${page.width}px`;
-  rail.style.paddingLeft = `${inset}px`;
-  rail.style.scrollPaddingLeft = `${inset}px`;
-  track.style.marginRight = `${Math.max(0, page.width - inset - colEl.offsetWidth)}px`;
   updateRail();
 }
 
@@ -105,7 +91,8 @@ function updateRail() {
   const atEnd = x >= maxScroll() - 2;
   prevBtn.disabled = x <= 2;
   nextBtn.disabled = atEnd;
-  fade.classList.toggle("off", atEnd);
+  rail.classList.toggle("at-end", atEnd);
+  rail.classList.toggle("moved", x > 2);
 
   const s = stops();
   const i = atEnd && x > 2 ? cards.length - 1 : s.indexOf(nearest(x));
