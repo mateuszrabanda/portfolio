@@ -1,12 +1,9 @@
 const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
 
-const rail = document.getElementById("rail");
-const track = rail.querySelector(".track");
-const shots = [...track.children];
+const cards = [...document.querySelectorAll("#work .card")];
 
 // Cards without an image or video (or with a missing file) stay as grey placeholders.
-shots.forEach((li) => {
-  const card = li.querySelector(".card");
+cards.forEach((card) => {
   const img = card.querySelector("img, video");
   const markEmpty = () => {
     card.classList.add("empty");
@@ -21,152 +18,21 @@ shots.forEach((li) => {
   else img.addEventListener("error", markEmpty);
 });
 
-/* ---------- rail: an endless strip drifting slowly to the left ---------- */
-
-// The shots are laid out over and over, so the strip never runs out: enough sets
-// to cover the widest screen this could be stretched to, plus one on each side.
-// Copies are hidden from screen readers and the tab order. The strip stays on the
-// second set and jumps by one set's width whenever it drifts (or is dragged) too far.
-const oneSet = track.scrollWidth;
-const SETS = Math.ceil(Math.max(screen.width, innerWidth) / oneSet) + 2;
-for (let i = 1; i < SETS; i++) {
-  shots.forEach((li) => {
-    const copy = li.cloneNode(true);
-    copy.setAttribute("aria-hidden", "true");
-    copy.querySelector(".card").tabIndex = -1;
-    track.append(copy);
-  });
-}
-const cards = [...track.querySelectorAll(".card")];
-const n = shots.length;
-
-const SPEED = 28; // px per second
-let pos = 0; // how far the track has moved left
-let speed = 0; // current drift; eases towards SPEED, or to 0 while paused
-let fling = 0; // leftover speed after letting go of a drag, dies away
-let hovered = false;
-let touchHold = 0; // after a touch, the strip waits a moment before drifting on
-
-const setWidth = () => cards[n].offsetLeft - cards[0].offsetLeft;
-
-function wrap() {
-  const w = setWidth();
-  if (w > 0) pos = w + ((((pos - w) % w) + w) % w);
-}
-
-function place() {
-  wrap();
-  track.style.transform = `translate3d(${-pos}px, 0, 0)`;
-}
-
-let last = performance.now();
-function tick(now) {
-  const dt = Math.min(0.05, (now - last) / 1000);
-  last = now;
-  const paused = hovered || drag || openCard || reduced.matches || now < touchHold;
-  speed += ((paused ? 0 : SPEED) - speed) * Math.min(1, dt * (paused ? 6 : 1.5));
-  fling *= Math.exp(-dt * 3);
-  if (Math.abs(fling) < 1) fling = 0;
-  if (!drag) pos += (speed + fling) * dt;
-  place();
-  requestAnimationFrame(tick);
-}
-
-// Start on the second set, its first shot lined up with the column.
-const startPos = () => setWidth() + cards[0].offsetLeft - (rail.clientWidth - document.querySelector(".col").offsetWidth) / 2;
-pos = startPos();
-place();
-requestAnimationFrame(tick);
-addEventListener("resize", place);
-
-// With a mouse, the strip slows to a stop under the pointer.
-rail.addEventListener("pointerenter", (e) => {
-  if (e.pointerType === "mouse") hovered = true;
-});
-rail.addEventListener("pointerleave", () => (hovered = false));
-
-// Drag (mouse or finger) moves the strip either way; letting go keeps a bit of the speed.
-let drag = null;
-let dragged = false;
+// Pressing a card shrinks it a touch; letting go releases it.
 let pressedCard = null;
-let paintT = 0;
 
-// Pressing a card shrinks it a touch; letting go (or starting a drag) releases it.
 function release() {
   pressedCard?.classList.remove("pressed");
   pressedCard = null;
 }
 
-rail.addEventListener("pointerdown", (e) => {
+document.getElementById("work").addEventListener("pointerdown", (e) => {
   if (e.button !== 0) return;
   pressedCard = e.target.closest(".card");
   pressedCard?.classList.add("pressed");
-  drag = { id: e.pointerId, type: e.pointerType, startX: e.clientX, startPos: pos, lastX: e.clientX, lastT: e.timeStamp, v: 0 };
-  dragged = false;
-  fling = 0;
 });
-
-addEventListener("pointermove", (e) => {
-  if (!drag || e.pointerId !== drag.id) return;
-  const dx = e.clientX - drag.startX;
-  if (!dragged && Math.abs(dx) > 5) {
-    dragged = true;
-    rail.classList.add("dragging");
-    release();
-    if (drag.type === "mouse") {
-      showCursor(dragLabel());
-      cursor.classList.add("drag");
-      paintT = performance.now();
-    }
-  }
-  if (!dragged) return;
-  pos = drag.startPos - dx;
-  const dt = e.timeStamp - drag.lastT;
-  if (dt > 0) drag.v = 0.8 * ((drag.lastX - e.clientX) / dt) + 0.2 * drag.v;
-  drag.lastX = e.clientX;
-  drag.lastT = e.timeStamp;
-});
-
-function endDrag(e) {
-  release();
-  if (!drag || e.pointerId !== drag.id) return;
-  const { v, type } = drag;
-  drag = null;
-  rail.classList.remove("dragging");
-  if (type !== "mouse") touchHold = performance.now() + 1500;
-  if (!dragged) return;
-  fling = v * 1000 * 0.6;
-  hideCursor();
-  cursor.classList.remove("drag");
-  // Cleared after the click that follows this pointerup has been swallowed.
-  setTimeout(() => (dragged = false), 0);
-}
-addEventListener("pointerup", endDrag);
-addEventListener("pointercancel", endDrag);
-
-// A drag must not count as a click on the card under the pointer.
-rail.addEventListener(
-  "click",
-  (e) => {
-    if (!dragged) return;
-    e.preventDefault();
-    e.stopPropagation();
-    dragged = false;
-  },
-  true
-);
-
-// Horizontal trackpad / shift+wheel moves the strip too.
-rail.addEventListener(
-  "wheel",
-  (e) => {
-    const d = e.shiftKey ? e.deltaY : e.deltaX;
-    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) && !e.shiftKey) return;
-    e.preventDefault();
-    pos += d;
-  },
-  { passive: false }
-);
+addEventListener("pointerup", release);
+addEventListener("pointercancel", release);
 
 /* ---------- cursor label ---------- */
 
@@ -185,11 +51,6 @@ function placeCursor() {
 // "expand" with 2 to 5 a's, drawn anew each time the label appears.
 function expandLabel() {
   return `exp${"a".repeat(2 + Math.floor(Math.random() * 4))}nd`;
-}
-
-// "draaag" while dragging the rail, also with 2 to 5 a's.
-function dragLabel() {
-  return `dr${"a".repeat(2 + Math.floor(Math.random() * 4))}g`;
 }
 
 function showCursor(text) {
@@ -225,15 +86,6 @@ addEventListener("pointermove", (e) => {
   if (!finePointer.matches || e.pointerType !== "mouse") return;
   tx = e.clientX;
   ty = e.clientY;
-  if (dragged) {
-    // While dragging, the tag drifts to a new colour at most every 0.4s
-    // (CSS blends the change), so it stays readable on fast drags.
-    if (drag && performance.now() - paintT > 400) {
-      paintTag(cursor);
-      paintT = performance.now();
-    }
-    return;
-  }
   if (openCard) {
     if (e.target === view || e.target === lbClose) hideCursor();
     else showCursor("close");
@@ -338,7 +190,7 @@ function openLightbox(card) {
   showInLightbox(card);
 
   const opened = cards.indexOf(card);
-  cards.forEach((c, i) => c.style.setProperty("--d", `${Math.min(8, Math.abs(i - opened)) * 0.05}s`));
+  cards.forEach((c, i) => c.style.setProperty("--d", `${Math.abs(i - opened) * 0.05}s`));
   card.classList.add("is-open");
   document.body.style.setProperty("--sbw", `${innerWidth - document.documentElement.clientWidth}px`);
   lb.hidden = false;
@@ -386,17 +238,11 @@ lb.addEventListener("click", (e) => {
   if (e.target !== view) closeLightbox();
 });
 
-// ← / → in the lightbox step through the shots, round and round. The strip moves
-// along behind it, so closing lands on the shot you were looking at.
+// ← / → in the lightbox step through the shots, round and round.
 // Steps happen instantly: no fade, so quick presses don't pulse.
 function stepLightbox(dir) {
   if (!openCard || closing) return;
-  const k = (cards.indexOf(openCard) % n + dir + n) % n;
-  // Centre that shot in the strip, then take whichever copy of it ended up there.
-  const target = cards[n + k];
-  pos = target.offsetLeft - (rail.clientWidth - target.offsetWidth) / 2;
-  place();
-  const next = cards.filter((c, i) => i % n === k).find((c) => c.offsetLeft >= pos - 1 && c.offsetLeft + c.offsetWidth <= pos + rail.clientWidth + 1) || target;
+  const next = cards[(cards.indexOf(openCard) + dir + cards.length) % cards.length];
 
   const prev = openCard;
   next.style.visibility = "hidden";

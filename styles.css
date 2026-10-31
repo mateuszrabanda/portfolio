@@ -12,7 +12,6 @@
      big and ultrawide screens stay readable without blowing the page up. */
   --u: clamp(1px, min(100vw / 1600, 100vh / 900), 1.6px);
   --col: calc(500 * var(--u));
-  --card-h: calc(250 * var(--u));
   --ease: cubic-bezier(.22, .8, .2, 1);
   --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --tag: "Space Mono", ui-monospace, monospace;
@@ -119,39 +118,19 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 .links a:hover { color: var(--fg); }
 
 /* work */
-/* An endless strip of shots drifting slowly to the left (moved in JS). It runs
-   the full width of the window and fades out completely at both edges, so no
-   shot ever shows a cut edge. */
-.rail-wrap {
-  --edge: calc(160 * var(--u));
-  width: 100vw;
-  margin-left: calc((100% - 100vw) / 2);
-}
-
-.rail {
-  overflow: hidden;
-  touch-action: pan-y;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--edge), #000 calc(100% - var(--edge)), transparent);
-  mask-image: linear-gradient(to right, transparent, #000 var(--edge), #000 calc(100% - var(--edge)), transparent);
-}
-.rail.dragging { cursor: grabbing; }
-.rail.dragging .card { pointer-events: none; }
-
-.track {
-  position: relative;
-  display: flex;
+/* Shots in a 2 x 2 grid as wide as the column, so every shot shows at once.
+   One column on phones. */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: calc(8 * var(--u));
-  width: max-content;
-  will-change: transform;
 }
 
 .card {
   position: relative;
   display: block;
-  width: calc(var(--w) * var(--u));
-  height: var(--card-h);
+  width: 100%;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--placeholder);
   transition: opacity .45s var(--ease), transform .25s var(--ease);
@@ -203,7 +182,7 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
   transition: opacity .5s var(--ease);
 }
 @media (hover: hover) {
-  .rail:not(.dragging) .track:has(.card:hover) .card:not(:hover)::after { opacity: .45; }
+  .grid:has(.card:hover) .card:not(:hover)::after { opacity: .45; }
 }
 
 /* experience */
@@ -217,8 +196,7 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
    "product, sole designer", "always") with a 1ch gap, at 13px so a row
    still fits on a 360px-wide screen. */
 @media (max-width: 480px) {
-  .card { width: min(calc(var(--w) * var(--u)), 100vw - 96px); }
-  .rail-wrap { --edge: 40px; }
+  .grid { grid-template-columns: 1fr; }
   .xp { grid-template-columns: 11ch 1fr 6ch; column-gap: 1ch; font-size: 13px; }
 }
 .xp > :last-child { text-align: right; }
@@ -298,8 +276,6 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
   visibility: visible;
   transition: opacity .15s;
 }
-/* Only the drag tag blends between colours; every other tag stays a flat swatch. */
-.cursor.on.drag { transition: opacity .15s, background-color .4s linear; }
 
 /* lightbox */
 /* --sbw: scrollbar width, set in JS so hiding the scrollbar doesn't shift the page. */

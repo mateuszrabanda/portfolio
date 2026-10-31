@@ -11,9 +11,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&family=Space+Mono&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=39">
-  <script src="common.js?v=39" defer></script>
-  <script src="main.js?v=39" defer></script>
+  <link rel="stylesheet" href="styles.css?v=41">
+  <script src="common.js?v=41" defer></script>
+  <script src="main.js?v=41" defer></script>
 </head>
 <body>
   <div class="page" id="page">
@@ -40,41 +40,37 @@
         <section class="block" aria-labelledby="work-label">
           <h2 class="label" id="work-label">work (click to expand)</h2>
 
-          <!-- Każda karta: --w (szerokość), data-title (nagłówek w lightboxie). Karta bez <img> zostaje szarym placeholderem z napisem „coming soon”.
+          <!-- Każda karta: data-title (nagłówek w lightboxie). Karta bez <img> zostaje szarym placeholderem z napisem „coming soon”.
                Przykład karty ze shotem:
                <li>
-                 <button class="card" style="--w: 333" data-title="numa - key result details">
+                 <button class="card" data-title="numa - key result details">
                    <img src="assets/shots/numa-key-result.webp" alt="Numa, key result details screen" draggable="false">
                  </button>
                </li> -->
-          <div class="rail-wrap">
-            <div class="rail" id="rail">
-              <ul class="track">
-                <li>
-                  <!-- Wideo: na karcie stoi na pierwszej klatce, gra dopiero po powiększeniu. -->
-                  <button class="card" style="--w: 333" data-title="export pipeline - sheet export">
-                    <video src="assets/shots/export-pipeline.mp4?v=3#t=0.001" width="1600" height="1200" muted loop playsinline preload="metadata" aria-label="Export pipeline: exporting a sheet with chosen columns and filters"></video>
-                    <span class="badge" aria-hidden="true">motion</span>
-                  </button>
-                </li>
-                <li>
-                  <button class="card" style="--w: 333" data-title="numa - key result details">
-                    <img src="assets/shots/numa-key-result.webp" alt="Numa, key result details: progress towards 50k monthly active users, initiative counts and initiative progress" draggable="false">
-                  </button>
-                </li>
-                <li>
-                  <button class="card" style="--w: 333" data-title="numa - key result details">
-                    <img src="assets/shots/numa-status.webp" alt="Numa, initiative status cards: planned, discovery, building, launching and blocked" draggable="false">
-                  </button>
-                </li>
-                <li>
-                  <button class="card" style="--w: 333" data-title="numa - key result details">
-                    <img src="assets/shots/numa-initiatives.webp" alt="Numa, initiatives table with milestone progress for onboarding, referral program, pricing test and mobile app launch" draggable="false">
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <ul class="grid" id="work">
+            <li>
+              <!-- Wideo: na karcie stoi na pierwszej klatce, gra dopiero po powiększeniu. -->
+              <button class="card" data-title="export pipeline - sheet export">
+                <video src="assets/shots/export-pipeline.mp4?v=3#t=0.001" width="1600" height="1200" muted loop playsinline preload="metadata" aria-label="Export pipeline: exporting a sheet with chosen columns and filters"></video>
+                <span class="badge" aria-hidden="true">motion</span>
+              </button>
+            </li>
+            <li>
+              <button class="card" data-title="numa - key result details">
+                <img src="assets/shots/numa-key-result.webp" alt="Numa, key result details: progress towards 50k monthly active users, initiative counts and initiative progress" draggable="false">
+              </button>
+            </li>
+            <li>
+              <button class="card" data-title="numa - key result details">
+                <img src="assets/shots/numa-status.webp" alt="Numa, initiative status cards: planned, discovery, building, launching and blocked" draggable="false">
+              </button>
+            </li>
+            <li>
+              <button class="card" data-title="numa - key result details">
+                <img src="assets/shots/numa-initiatives.webp" alt="Numa, initiatives table with milestone progress for onboarding, referral program, pricing test and mobile app launch" draggable="false">
+              </button>
+            </li>
+          </ul>
         </section>
 
         <section class="block">
