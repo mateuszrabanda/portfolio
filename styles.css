@@ -119,14 +119,13 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 .links a:hover { color: var(--fg); }
 
 /* work */
-/* An endless strip of shots drifting slowly to the left (moved in JS). It's wider
-   than the column, centred on it, and fades out completely at both ends, so no
+/* An endless strip of shots drifting slowly to the left (moved in JS). It runs
+   the full width of the window and fades out completely at both edges, so no
    shot ever shows a cut edge. */
 .rail-wrap {
-  --strip: min(calc(1050 * var(--u)), 100vw);
-  --edge: calc(140 * var(--u));
-  width: var(--strip);
-  margin-left: calc((100% - var(--strip)) / 2);
+  --edge: calc(160 * var(--u));
+  width: 100vw;
+  margin-left: calc((100% - 100vw) / 2);
 }
 
 .rail {
@@ -146,15 +145,6 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
   gap: calc(8 * var(--u));
   width: max-content;
   will-change: transform;
-}
-
-.card { pointer-events: none; }
-
-.track {
-  position: relative;
-  display: flex;
-  gap: calc(8 * var(--u));
-  width: max-content;
 }
 
 .card {

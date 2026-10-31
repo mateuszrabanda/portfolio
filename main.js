@@ -23,10 +23,12 @@ shots.forEach((li) => {
 
 /* ---------- rail: an endless strip drifting slowly to the left ---------- */
 
-// The shots are laid out three times over, so the strip never runs out; copies
-// are hidden from screen readers and the tab order. The strip shows the middle
-// set and jumps by one set's width whenever it drifts (or is dragged) too far.
-const SETS = 3;
+// The shots are laid out over and over, so the strip never runs out: enough sets
+// to cover the widest screen this could be stretched to, plus one on each side.
+// Copies are hidden from screen readers and the tab order. The strip stays on the
+// second set and jumps by one set's width whenever it drifts (or is dragged) too far.
+const oneSet = track.scrollWidth;
+const SETS = Math.ceil(Math.max(screen.width, innerWidth) / oneSet) + 2;
 for (let i = 1; i < SETS; i++) {
   shots.forEach((li) => {
     const copy = li.cloneNode(true);
@@ -70,7 +72,7 @@ function tick(now) {
   requestAnimationFrame(tick);
 }
 
-// Start on the middle set, its first shot lined up with the column.
+// Start on the second set, its first shot lined up with the column.
 const startPos = () => setWidth() + cards[0].offsetLeft - (rail.clientWidth - document.querySelector(".col").offsetWidth) / 2;
 pos = startPos();
 place();
