@@ -233,7 +233,8 @@ let cursorRaf = null;
 
 function placeCursor() {
   // Same scale as --u in the CSS, so the label keeps its distance on big screens.
-  const u = Math.min(1.6, Math.max(1, Math.min(innerWidth / 1600, innerHeight / 900)));
+  const u = devicePixelRatio >= 1.25 ? 1
+    : Math.min(1.6, Math.max(1, Math.min(innerWidth / 1600, innerHeight / 900)));
   cursor.style.transform = `translate3d(${cx + 16 * u}px, ${cy - 6 * u}px, 0)`;
 }
 

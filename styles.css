@@ -18,6 +18,12 @@
   --tag: "Space Mono", ui-monospace, monospace;
 }
 
+/* Hi-DPI screens (4K at 150%, Retina) are already enlarged by the OS, so growing
+   the page on top of that makes it double-sized. Scale only plain 1x screens. */
+@media (min-resolution: 1.25dppx) {
+  :root { --u: 1px; }
+}
+
 * { box-sizing: border-box; }
 
 html { background: var(--bg); }
