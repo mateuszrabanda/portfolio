@@ -1,15 +1,12 @@
 const finePointer = matchMedia("(hover: hover) and (pointer: fine)");
 
 const rail = document.getElementById("rail");
-const cards = [...rail.querySelectorAll(".card")];
-const prevBtn = document.getElementById("prev");
-const nextBtn = document.getElementById("next");
-
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const easeOutQuart = (t) => 1 - Math.pow(1 - t, 4);
+const track = rail.querySelector(".track");
+const shots = [...track.children];
 
 // Cards without an image or video (or with a missing file) stay as grey placeholders.
-cards.forEach((card) => {
+shots.forEach((li) => {
+  const card = li.querySelector(".card");
   const img = card.querySelector("img, video");
   const markEmpty = () => {
     card.classList.add("empty");
@@ -24,94 +21,69 @@ cards.forEach((card) => {
   else img.addEventListener("error", markEmpty);
 });
 
-/* ---------- rail: smooth scroll, drag with momentum, snap ---------- */
+/* ---------- rail: an endless strip drifting slowly to the left ---------- */
 
-const maxScroll = () => rail.scrollWidth - rail.clientWidth;
-const stops = () => cards.map((c) => Math.min(c.offsetLeft, maxScroll()));
-const nearest = (x) => stops().reduce((best, s) => (Math.abs(s - x) < Math.abs(best - x) ? s : best), 0);
+// The shots are laid out three times over, so the strip never runs out; copies
+// are hidden from screen readers and the tab order. The strip shows the middle
+// set and jumps by one set's width whenever it drifts (or is dragged) too far.
+const SETS = 3;
+for (let i = 1; i < SETS; i++) {
+  shots.forEach((li) => {
+    const copy = li.cloneNode(true);
+    copy.setAttribute("aria-hidden", "true");
+    copy.querySelector(".card").tabIndex = -1;
+    track.append(copy);
+  });
+}
+const cards = [...track.querySelectorAll(".card")];
+const n = shots.length;
 
-let anim = null;
-let animTarget = 0;
+const SPEED = 28; // px per second
+let pos = 0; // how far the track has moved left
+let speed = 0; // current drift; eases towards SPEED, or to 0 while paused
+let fling = 0; // leftover speed after letting go of a drag, dies away
+let hovered = false;
+let touchHold = 0; // after a touch, the strip waits a moment before drifting on
 
-function stopAnim() {
-  if (anim) cancelAnimationFrame(anim);
-  anim = null;
-  rail.classList.remove("animating");
+const setWidth = () => cards[n].offsetLeft - cards[0].offsetLeft;
+
+function wrap() {
+  const w = setWidth();
+  if (w > 0) pos = w + ((((pos - w) % w) + w) % w);
 }
 
-function scrollToX(x) {
-  stopAnim();
-  x = clamp(x, 0, maxScroll());
-  animTarget = x;
-  if (reduced.matches) {
-    rail.scrollLeft = x;
-    return;
-  }
-  const from = rail.scrollLeft;
-  const dist = x - from;
-  const duration = Math.min(900, 420 + Math.abs(dist) * 0.35);
-  const t0 = performance.now();
-  // Touch snap would fight the per-frame scroll, so it's off while animating.
-  rail.classList.add("animating");
-  const step = (now) => {
-    const p = clamp((now - t0) / duration, 0, 1);
-    rail.scrollLeft = from + dist * easeOutQuart(p);
-    if (p < 1) anim = requestAnimationFrame(step);
-    else stopAnim();
-  };
-  anim = requestAnimationFrame(step);
+function place() {
+  wrap();
+  track.style.transform = `translate3d(${-pos}px, 0, 0)`;
 }
 
-// Arrows count from where a running animation is heading, so quick clicks add up.
-const arrowBase = () => (anim ? animTarget : rail.scrollLeft);
+let last = performance.now();
+function tick(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  const paused = hovered || drag || openCard || reduced.matches || now < touchHold;
+  speed += ((paused ? 0 : SPEED) - speed) * Math.min(1, dt * (paused ? 6 : 1.5));
+  fling *= Math.exp(-dt * 3);
+  if (Math.abs(fling) < 1) fling = 0;
+  if (!drag) pos += (speed + fling) * dt;
+  place();
+  requestAnimationFrame(tick);
+}
 
-nextBtn.addEventListener("click", () => {
-  const x = arrowBase();
-  scrollToX(stops().find((s) => s > x + 4) ?? maxScroll());
+// Start on the middle set, its first shot lined up with the column.
+const startPos = () => setWidth() + cards[0].offsetLeft - (rail.clientWidth - document.querySelector(".col").offsetWidth) / 2;
+pos = startPos();
+place();
+requestAnimationFrame(tick);
+addEventListener("resize", place);
+
+// With a mouse, the strip slows to a stop under the pointer.
+rail.addEventListener("pointerenter", (e) => {
+  if (e.pointerType === "mouse") hovered = true;
 });
+rail.addEventListener("pointerleave", () => (hovered = false));
 
-prevBtn.addEventListener("click", () => {
-  const x = arrowBase();
-  scrollToX([...stops()].reverse().find((s) => s < x - 4) ?? 0);
-});
-
-// The rail is as wide as the column, so the next shot peeks in at its right edge.
-const pageEl = document.getElementById("page");
-
-function sizeRail() {
-  updateRail();
-}
-
-// The shot aligned with the column is the active one; the rest are dimmed.
-// At the very end that's the last shot, flush with the column's right edge.
-let activeCard = null;
-
-function updateRail() {
-  const x = rail.scrollLeft;
-  const atEnd = x >= maxScroll() - 2;
-  prevBtn.disabled = x <= 2;
-  nextBtn.disabled = atEnd;
-  rail.classList.toggle("at-end", atEnd);
-  rail.classList.toggle("moved", x > 2);
-
-  const s = stops();
-  const i = atEnd && x > 2 ? cards.length - 1 : s.indexOf(nearest(x));
-  if (cards[i] !== activeCard) {
-    activeCard?.classList.remove("active");
-    activeCard = cards[i];
-    activeCard.classList.add("active");
-  }
-}
-rail.addEventListener("scroll", updateRail, { passive: true });
-rail.addEventListener("scrollend", updateRail);
-// Size the rail right away (the observer's first call isn't guaranteed before
-// the first paint), on window resizes, and whenever the page changes size, which
-// also catches the scrollbar appearing or disappearing.
-sizeRail();
-addEventListener("resize", sizeRail);
-new ResizeObserver(sizeRail).observe(pageEl);
-
-// Mouse drag. Touch uses native scrolling with CSS snap.
+// Drag (mouse or finger) moves the strip either way; letting go keeps a bit of the speed.
 let drag = null;
 let dragged = false;
 let pressedCard = null;
@@ -127,64 +99,48 @@ rail.addEventListener("pointerdown", (e) => {
   if (e.button !== 0) return;
   pressedCard = e.target.closest(".card");
   pressedCard?.classList.add("pressed");
-  if (e.pointerType !== "mouse") return;
-  stopAnim();
-  drag = { startX: e.clientX, startScroll: rail.scrollLeft, lastX: e.clientX, lastT: e.timeStamp, v: 0 };
+  drag = { id: e.pointerId, type: e.pointerType, startX: e.clientX, startPos: pos, lastX: e.clientX, lastT: e.timeStamp, v: 0 };
   dragged = false;
+  fling = 0;
 });
 
 addEventListener("pointermove", (e) => {
-  if (!drag) return;
+  if (!drag || e.pointerId !== drag.id) return;
   const dx = e.clientX - drag.startX;
   if (!dragged && Math.abs(dx) > 5) {
     dragged = true;
     rail.classList.add("dragging");
     release();
-    showCursor(dragLabel());
-    cursor.classList.add("drag");
-    paintT = performance.now();
+    if (drag.type === "mouse") {
+      showCursor(dragLabel());
+      cursor.classList.add("drag");
+      paintT = performance.now();
+    }
   }
   if (!dragged) return;
-  rail.scrollLeft = drag.startScroll - dx;
+  pos = drag.startPos - dx;
   const dt = e.timeStamp - drag.lastT;
   if (dt > 0) drag.v = 0.8 * ((drag.lastX - e.clientX) / dt) + 0.2 * drag.v;
   drag.lastX = e.clientX;
   drag.lastT = e.timeStamp;
 });
 
-addEventListener("pointerup", (e) => {
+function endDrag(e) {
   release();
-  if (!drag) return;
-  const { v } = drag;
+  if (!drag || e.pointerId !== drag.id) return;
+  const { v, type } = drag;
   drag = null;
   rail.classList.remove("dragging");
+  if (type !== "mouse") touchHold = performance.now() + 1500;
   if (!dragged) return;
-  scrollToX(nearest(rail.scrollLeft + v * 320));
+  fling = v * 1000 * 0.6;
   hideCursor();
   cursor.classList.remove("drag");
   // Cleared after the click that follows this pointerup has been swallowed.
   setTimeout(() => (dragged = false), 0);
-  calmHover(e);
-});
-addEventListener("pointercancel", release);
-
-// After a drag the card left under the pointer doesn't steal the highlight;
-// hover comes back once the pointer reaches another card or leaves the rail.
-function calmHover(e) {
-  const under = document.elementFromPoint(e.clientX, e.clientY)?.closest(".card");
-  rail.classList.add("calm");
-  const end = () => {
-    rail.classList.remove("calm");
-    rail.removeEventListener("pointerover", onOver);
-    rail.removeEventListener("pointerleave", end);
-  };
-  const onOver = (ev) => {
-    const card = ev.target.closest(".card");
-    if (card && card !== under) end();
-  };
-  rail.addEventListener("pointerover", onOver);
-  rail.addEventListener("pointerleave", end);
 }
+addEventListener("pointerup", endDrag);
+addEventListener("pointercancel", endDrag);
 
 // A drag must not count as a click on the card under the pointer.
 rail.addEventListener(
@@ -198,17 +154,16 @@ rail.addEventListener(
   true
 );
 
-// Horizontal trackpad / shift+wheel: settle on the nearest card once it stops.
-let wheelTimer;
+// Horizontal trackpad / shift+wheel moves the strip too.
 rail.addEventListener(
   "wheel",
   (e) => {
+    const d = e.shiftKey ? e.deltaY : e.deltaX;
     if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) && !e.shiftKey) return;
-    stopAnim();
-    clearTimeout(wheelTimer);
-    wheelTimer = setTimeout(() => scrollToX(nearest(rail.scrollLeft)), 160);
+    e.preventDefault();
+    pos += d;
   },
-  { passive: true }
+  { passive: false }
 );
 
 /* ---------- cursor label ---------- */
@@ -381,7 +336,7 @@ function openLightbox(card) {
   showInLightbox(card);
 
   const opened = cards.indexOf(card);
-  cards.forEach((c, i) => c.style.setProperty("--d", `${Math.abs(i - opened) * 0.05}s`));
+  cards.forEach((c, i) => c.style.setProperty("--d", `${Math.min(8, Math.abs(i - opened)) * 0.05}s`));
   card.classList.add("is-open");
   document.body.style.setProperty("--sbw", `${innerWidth - document.documentElement.clientWidth}px`);
   lb.hidden = false;
@@ -429,13 +384,17 @@ lb.addEventListener("click", (e) => {
   if (e.target !== view) closeLightbox();
 });
 
-// ← / → in the lightbox step through the shots. The rail scrolls along behind it,
-// so closing lands on the shot you were looking at.
+// ← / → in the lightbox step through the shots, round and round. The strip moves
+// along behind it, so closing lands on the shot you were looking at.
 // Steps happen instantly: no fade, so quick presses don't pulse.
 function stepLightbox(dir) {
   if (!openCard || closing) return;
-  const next = cards[cards.indexOf(openCard) + dir];
-  if (!next) return;
+  const k = (cards.indexOf(openCard) % n + dir + n) % n;
+  // Centre that shot in the strip, then take whichever copy of it ended up there.
+  const target = cards[n + k];
+  pos = target.offsetLeft - (rail.clientWidth - target.offsetWidth) / 2;
+  place();
+  const next = cards.filter((c, i) => i % n === k).find((c) => c.offsetLeft >= pos - 1 && c.offsetLeft + c.offsetWidth <= pos + rail.clientWidth + 1) || target;
 
   const prev = openCard;
   next.style.visibility = "hidden";
@@ -447,8 +406,6 @@ function stepLightbox(dir) {
   }, 600);
   openCard = next;
   showInLightbox(next);
-  stopAnim();
-  rail.scrollLeft = Math.min(next.offsetLeft, maxScroll());
 }
 
 addEventListener("keydown", (e) => {

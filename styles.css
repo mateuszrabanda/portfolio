@@ -119,32 +119,36 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
 .links a:hover { color: var(--fg); }
 
 /* work */
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.arrows { display: flex; gap: calc(8 * var(--u)); }
-.arrow { display: block; transition: opacity .2s; }
-.arrow img { display: block; width: calc(16 * var(--u)); height: calc(16 * var(--u)); }
-.arrow:hover { opacity: .7; }
-.arrow:disabled { opacity: .3; cursor: default; }
-
-/* The rail stays inside the column; the next shot peeks in at its right edge. */
+/* An endless strip of shots drifting slowly to the left (moved in JS). It's wider
+   than the column, centred on it, and fades out completely at both ends, so no
+   shot ever shows a cut edge. */
 .rail-wrap {
-  position: relative;
+  --strip: min(calc(1050 * var(--u)), 100vw);
+  --edge: calc(140 * var(--u));
+  width: var(--strip);
+  margin-left: calc((100% - var(--strip)) / 2);
 }
 
 .rail {
-  overflow-x: auto;
-  scrollbar-width: none;
+  overflow: hidden;
+  touch-action: pan-y;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--edge), #000 calc(100% - var(--edge)), transparent);
+  mask-image: linear-gradient(to right, transparent, #000 var(--edge), #000 calc(100% - var(--edge)), transparent);
 }
-.rail::-webkit-scrollbar { display: none; }
 .rail.dragging { cursor: grabbing; }
 .rail.dragging .card { pointer-events: none; }
+
+.track {
+  position: relative;
+  display: flex;
+  gap: calc(8 * var(--u));
+  width: max-content;
+  will-change: transform;
+}
+
+.card { pointer-events: none; }
 
 .track {
   position: relative;
@@ -198,40 +202,19 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
   pointer-events: none;
 }
 
-/* Every shot except the active one sits under a dark veil. */
+/* With a mouse, the hovered shot stays bright and the others dim. */
 .card::after {
   content: "";
   position: absolute;
   inset: 0;
   background: var(--bg);
-  opacity: .45;
+  opacity: 0;
   pointer-events: none;
   transition: opacity .5s var(--ease);
 }
-.card.active::after { opacity: 0; }
-
-/* With a mouse, the hovered shot takes the highlight from the active one
-   until the pointer leaves it. Right after a drag (.calm) the active shot keeps
-   it, so letting go over another card doesn't flash. */
 @media (hover: hover) {
-  .rail:not(.calm) .track:has(.card:hover) .card.active:not(:hover)::after { opacity: .45; }
-  .rail:not(.calm) .track .card:hover::after { opacity: 0; }
+  .rail:not(.dragging) .track:has(.card:hover) .card:not(:hover)::after { opacity: .45; }
 }
-
-/* The shot peeking past the column's edge fades out completely, so no cut edge
-   shows: on the right while there's more to come, on the left at the very end
-   (the last shot sits flush right and the one before it peeks in). */
-@property --fl { syntax: "<length>"; inherits: false; initial-value: 0px; }
-@property --fr { syntax: "<length>"; inherits: false; initial-value: 0px; }
-.rail {
-  --edge: calc(140 * var(--u));
-  --fr: var(--edge);
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 var(--fl), #000 calc(100% - var(--fr)), transparent);
-  mask-image: linear-gradient(to right, transparent, #000 var(--fl), #000 calc(100% - var(--fr)), transparent);
-  transition: --fl .4s var(--ease), --fr .4s var(--ease);
-}
-.rail.at-end { --fr: 0px; }
-.rail.at-end.moved { --fl: var(--edge); }
 
 /* experience */
 .xp {
@@ -245,7 +228,7 @@ html.tabbing :focus-visible { outline: 1px solid var(--lime); outline-offset: 3p
    still fits on a 360px-wide screen. */
 @media (max-width: 480px) {
   .card { width: min(calc(var(--w) * var(--u)), 100vw - 96px); }
-  .rail { --edge: 64px; }
+  .rail-wrap { --edge: 40px; }
   .xp { grid-template-columns: 11ch 1fr 6ch; column-gap: 1ch; font-size: 13px; }
 }
 .xp > :last-child { text-align: right; }
@@ -516,12 +499,6 @@ html.tabbing .peek-ghost:focus-visible { outline: none; }
 }
 .ghost-tag.on { opacity: 1; visibility: visible; transition: opacity .15s; }
 .ghost-tag > span { display: flex; gap: calc(32 * var(--u)); }
-
-@media (pointer: coarse) {
-  .rail { scroll-snap-type: x mandatory; }
-  .rail.animating { scroll-snap-type: none; }
-  .card { scroll-snap-align: start; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0s !important; animation-duration: 0s !important; }
